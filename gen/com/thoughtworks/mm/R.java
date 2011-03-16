@@ -13,6 +13,22 @@ public final class R {
     public static final class drawable {
         public static final int icon=0x7f020000;
     }
+    public static final class id {
+        public static final int accel_x_label=0x7f050001;
+        public static final int accel_x_value=0x7f050002;
+        public static final int accel_y_label=0x7f050003;
+        public static final int accel_y_value=0x7f050004;
+        public static final int accel_z_label=0x7f050005;
+        public static final int accel_z_value=0x7f050006;
+        public static final int accelerometer_label=0x7f050000;
+        public static final int orient_x_label=0x7f050008;
+        public static final int orient_x_value=0x7f050009;
+        public static final int orient_y_label=0x7f05000a;
+        public static final int orient_y_value=0x7f05000b;
+        public static final int orient_z_label=0x7f05000c;
+        public static final int orient_z_value=0x7f05000d;
+        public static final int orientation_label=0x7f050007;
+    }
     public static final class layout {
         public static final int main=0x7f030000;
     }
