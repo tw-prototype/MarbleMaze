@@ -1,146 +1,160 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="MarbleMaze" default="precommit" xmlns:android="antlib:com.googlecode.autoandroid.ant">
 
-	<!-- Requires ant 1.7 or better -->
+  <!-- Requires ant 1.7 or better -->
 
-	<taskdef uri="antlib:com.googlecode.autoandroid.ant" classpath="lib/android-ant-1.0-rc5.jar"/>
-	<android:home/> <!-- Set the detected android-home property to the sdk root. -->
+  <taskdef uri="antlib:com.googlecode.autoandroid.ant" classpath="lib/android-ant-1.0-rc5.jar"/>
+  <android:home/>
+  <!-- Set the detected android-home property to the sdk root. -->
 
-	<!-- Dependencies -->
+  <!-- Dependencies -->
 
-	<fileset dir="lib" id="main.jars">
-		<include name="positron.jar"/>
-	</fileset>
-	
-	<fileset dir="lib" id="test.jars">
-		<include name="positron.jar"/>
-		<include name="junit.jar"/>
-	</fileset>
+  <fileset dir="lib" id="main.jars">
+    <include name="positron.jar"/>
+    <include name="andengine.jar"/>
+    <include name="andengineaugmentedrealityextension.jar"/>
+    <include name="andenginelivewallpaperextension.jar"/>
+    <include name="andenginemultiplayerextension.jar"/>
+    <include name="andenginemultitouchextension.jar"/>
+    <include name="andenginephysicsbox2dextension.jar"/>
+  </fileset>
 
-	<!-- Rules -->
+  <fileset dir="lib" id="test.jars">
+    <include name="positron.jar"/>
+    <include name="junit.jar"/>
+  </fileset>
 
-	<target name="clean" description="Delete the output directories.">
-		<delete dir="target"/>
-	</target>
+  <!-- Rules -->
 
-	<target name="resource-src" description="Generate the R.java file for this project's resources.">
-		<android:aapt>
-			<arg value="package"/>
-			<arg value="-m"/>
-			<arg value="-J"/>
-			<arg file="gen"/> <!-- Create R.java in the source directory -->
-			<arg value="-M"/>
-			<arg file="AndroidManifest.xml"/>
-			<arg value="-S"/>
-			<arg file="res"/>
-			<arg value="-I"/>
-			<arg file="${android-home}/android.jar"/>
-		</android:aapt>
-	</target>
+  <target name="clean" description="Delete the output directories.">
+    <delete dir="target"/>
+  </target>
 
-	<target name="compile-main" depends="resource-src" description="Compile the java source.">
-		<mkdir dir="target/main-classes"/>
-		<javac encoding="ascii" target="1.6" debug="true" extdirs=""
-				srcdir="src" destdir="target/main-classes"
-				bootclasspath="${android-home}/android.jar">
+  <target name="resource-src" description="Generate the R.java file for this project's resources.">
+    <android:aapt>
+      <arg value="package"/>
+      <arg value="-m"/>
+      <arg value="-J"/>
+      <arg file="gen"/>
+      <!-- Create R.java in the source directory -->
+      <arg value="-M"/>
+      <arg file="AndroidManifest.xml"/>
+      <arg value="-S"/>
+      <arg file="res"/>
+      <arg value="-I"/>
+      <arg file="${android-home}/android.jar"/>
+    </android:aapt>
+  </target>
+
+  <target name="compile-main" depends="resource-src" description="Compile the java source.">
+    <mkdir dir="target/main-classes"/>
+    <javac encoding="ascii" target="1.6" debug="true" extdirs=""
+           srcdir="src" destdir="target/main-classes"
+           bootclasspath="${android-home}/android.jar">
       <src location="gen"/>
-			<classpath>
-				<fileset refid="main.jars"/>
-			</classpath>
-		</javac>
-	</target>
+      <classpath>
+        <fileset refid="main.jars"/>
+      </classpath>
+    </javac>
+  </target>
 
-	<target name="dex" depends="compile-main" description="Convert the .class files into .dex files.">
-		<property name="classes.dex" location="target/classes.dex"/>
-		<android:dx inputref="main.jars">
-			<arg value="--dex"/>
-			<arg value="--output=${classes.dex}"/>
-			<arg path="target/main-classes"/>
-		</android:dx>
-	</target>
+  <target name="dex" depends="compile-main" description="Convert the .class files into .dex files.">
+    <property name="classes.dex" location="target/classes.dex"/>
+    <android:dx inputref="main.jars">
+      <arg value="--dex"/>
+      <arg value="--output=${classes.dex}"/>
+      <arg path="target/main-classes"/>
+    </android:dx>
+  </target>
 
-	<target name="package-res" description="Put the project's resources into the output package file.">
-		<android:aapt>
-			<arg value="package"/>
-			<arg value="-f"/>
-			<arg value="-M"/>
-			<arg file="AndroidManifest.xml"/>
-			<arg value="-S"/>
-			<arg file="res"/>
-			<!-- No assets directory -->
-			<arg value="-I"/>
-			<arg file="${android-home}/android.jar"/>
-			<arg value="-F"/>
-			<arg file="target/MarbleMaze.ap_"/>
-		</android:aapt>
-	</target>
+  <target name="package-res" description="Put the project's resources into the output package file.">
+    <android:aapt>
+      <arg value="package"/>
+      <arg value="-f"/>
+      <arg value="-M"/>
+      <arg file="AndroidManifest.xml"/>
+      <arg value="-S"/>
+      <arg file="res"/>
+      <arg value="-A"/>
+      <arg file="assets"/>
+      <arg value="-I"/>
+      <arg file="${android-home}/android.jar"/>
+      <arg value="-F"/>
+      <arg file="target/MarbleMaze.ap_"/>
+    </android:aapt>
+  </target>
 
-	<target name="package-apk" depends="dex, package-res" description="Package the application and sign it with a debug key.">
-		<android:apk-builder>
-			<arg file="target/MarbleMaze.apk"/>
-			<arg value="-z"/>
-			<arg file="target/MarbleMaze.ap_"/>
-			<arg value="-f"/>
-			<arg file="target/classes.dex"/>
-			<arg value="-rf"/>
-			<arg file="src"/>
-			<arg value="-rj"/>
-			<arg file="lib"/>
-		</android:apk-builder>
-	</target>
+  <target name="package-apk" depends="dex, package-res"
+          description="Package the application and sign it with a debug key.">
+    <android:apk-builder>
+      <arg file="target/MarbleMaze.apk"/>
+      <arg value="-z"/>
+      <arg file="target/MarbleMaze.ap_"/>
+      <arg value="-f"/>
+      <arg file="target/classes.dex"/>
+      <arg value="-rf"/>
+      <arg file="src"/>
+      <arg value="-rj"/>
+      <arg file="lib"/>
+    </android:apk-builder>
+  </target>
 
-	<target name="start-emulator" description="Start an emulator.">
-		<android:adb><arg value="start-server"/></android:adb>
-		<android:start-emulator only-if-not-running="true">
-			<arg line="-skin 320x480 -no-boot-anim"/>
-		</android:start-emulator>
-	</target>
+  <target name="start-emulator" description="Start an emulator.">
+    <android:adb>
+      <arg value="start-server"/>
+    </android:adb>
+    <android:start-emulator only-if-not-running="true">
+      <arg line="-skin 320x480 -no-boot-anim"/>
+    </android:start-emulator>
+  </target>
 
-	<target name="stop-emulator" description="Stop the emulator we started.">
-		<android:stop-emulator/>
-	</target>
+  <target name="stop-emulator" description="Stop the emulator we started.">
+    <android:stop-emulator/>
+  </target>
 
-	<target name="install" depends="package-apk, start-emulator" description="Install the package on the default emulator.">
-		<android:adb>
-			<arg value="install"/>
-			<arg value="-r"/>
-			<arg file="target/MarbleMaze.apk"/>
-		</android:adb>
-	</target>
+  <target name="install" depends="package-apk, start-emulator"
+          description="Install the package on the default emulator.">
+    <android:adb>
+      <arg value="install"/>
+      <arg value="-r"/>
+      <arg file="target/MarbleMaze.apk"/>
+    </android:adb>
+  </target>
 
-	<target name="demo" depends="install" description="Run the application until Return is hit.">
-		<input>Have fun with the demo, press Return when you're done.</input>
-	</target>
+  <target name="demo" depends="install" description="Run the application until Return is hit.">
+    <input>Have fun with the demo, press Return when you're done.</input>
+  </target>
 
-	<target name="compile-stories" depends="compile-main" description="Compile the stories.">
-		<mkdir dir="target/story-classes"/>
-		<javac target="1.5" debug="true" srcdir="stories" destdir="target/story-classes">
-			<classpath>
-				<pathelement location="target/main-classes"/>
-				<fileset refid="test.jars"/>
-				<pathelement location="${android-home}/android.jar"/>
-			</classpath>
-		</javac>
-	</target>
+  <target name="compile-stories" depends="compile-main" description="Compile the stories.">
+    <mkdir dir="target/story-classes"/>
+    <javac target="1.5" debug="true" srcdir="stories" destdir="target/story-classes">
+      <classpath>
+        <pathelement location="target/main-classes"/>
+        <fileset refid="test.jars"/>
+        <pathelement location="${android-home}/android.jar"/>
+      </classpath>
+    </javac>
+  </target>
 
-	<target name="run-stories" depends="compile-stories" description="Run the stories on an existing emulator">
-		<mkdir dir="target/junit-reports"/>
-		<junit haltonfailure="true" fork="true" forkMode="once" printsummary="true">
-			<sysproperty key="positron.instrumentedPackage" value="com.example.android.MarbleMaze"/>
-			<sysproperty key="positron.apk" file="target/MarbleMaze.apk"/>
-			
-			<formatter type="plain"/>
-			<batchtest todir="target/junit-reports">
-				<fileset dir="target/story-classes"/>
-			</batchtest>
-			<classpath>
-				<pathelement location="target/main-classes"/>
-				<pathelement location="target/story-classes"/>
-				<fileset refid="test.jars"/>
-			</classpath>
-		</junit>
-	</target>
+  <target name="run-stories" depends="compile-stories" description="Run the stories on an existing emulator">
+    <mkdir dir="target/junit-reports"/>
+    <junit haltonfailure="true" fork="true" forkMode="once" printsummary="true">
+      <sysproperty key="positron.instrumentedPackage" value="com.example.android.MarbleMaze"/>
+      <sysproperty key="positron.apk" file="target/MarbleMaze.apk"/>
 
-	<target name="precommit" depends="clean, install, run-stories, stop-emulator" description="If this passes you are safe to commit."/>
+      <formatter type="plain"/>
+      <batchtest todir="target/junit-reports">
+        <fileset dir="target/story-classes"/>
+      </batchtest>
+      <classpath>
+        <pathelement location="target/main-classes"/>
+        <pathelement location="target/story-classes"/>
+        <fileset refid="test.jars"/>
+      </classpath>
+    </junit>
+  </target>
+
+  <target name="precommit" depends="clean, install, run-stories, stop-emulator"
+          description="If this passes you are safe to commit."/>
 
 </project>
