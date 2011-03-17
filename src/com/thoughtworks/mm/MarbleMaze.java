@@ -1,5 +1,7 @@
 package com.thoughtworks.mm;
 
+import com.thoughtworks.mm.R;
+
 import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
