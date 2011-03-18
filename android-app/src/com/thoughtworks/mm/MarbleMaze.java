@@ -100,5 +100,10 @@ public class MarbleMaze extends Activity implements SensorEventListener {
 		sensorManager.unregisterListener(this);
 		super.onStop();
 	}
+	
+	// constructor for testing purposes
+	public MarbleMaze(SensorManager sensorManager) {
+		this.sensorManager = sensorManager;
+	}
 
 }
