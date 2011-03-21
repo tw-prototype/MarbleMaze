@@ -2,6 +2,12 @@ package com.thoughtworks.mm;
 
 import java.io.IOException;
 
+import android.hardware.SensorManager;
+import android.widget.Toast;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.Camera;
 import org.anddev.andengine.engine.options.EngineOptions;
@@ -9,9 +15,7 @@ import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.anddev.andengine.entity.primitive.Rectangle;
 import org.anddev.andengine.entity.scene.Scene;
-import org.anddev.andengine.entity.scene.Scene.IOnSceneTouchListener;
 import org.anddev.andengine.entity.scene.background.AutoParallaxBackground;
-import org.anddev.andengine.entity.scene.background.ColorBackground;
 import org.anddev.andengine.entity.scene.background.ParallaxBackground.ParallaxEntity;
 import org.anddev.andengine.entity.shape.Shape;
 import org.anddev.andengine.entity.sprite.AnimatedSprite;
@@ -21,7 +25,6 @@ import org.anddev.andengine.extension.physics.box2d.PhysicsConnector;
 import org.anddev.andengine.extension.physics.box2d.PhysicsFactory;
 import org.anddev.andengine.extension.physics.box2d.PhysicsWorld;
 import org.anddev.andengine.extension.physics.box2d.util.Vector2Pool;
-import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.level.LevelLoader;
 import org.anddev.andengine.level.LevelLoader.IEntityLoader;
 import org.anddev.andengine.level.util.constants.LevelConstants;
@@ -36,23 +39,12 @@ import org.anddev.andengine.util.Debug;
 import org.anddev.andengine.util.SAXUtils;
 import org.xml.sax.Attributes;
 
-import android.hardware.SensorManager;
-import android.widget.Toast;
-
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-
 /**
  * @author Nicolas Gramlich
  * @since 14:33:38 - 03.10.2010
  */
 public class PhysicsCollisionFilteringExample extends BaseExample implements
-		IAccelerometerListener, IOnSceneTouchListener {
-	// ===========================================================
-	// Constants
-	// ===========================================================
+		IAccelerometerListener {
 
 	private static final int CAMERA_WIDTH = 720;
 	private static final int CAMERA_HEIGHT = 480;
@@ -66,7 +58,6 @@ public class PhysicsCollisionFilteringExample extends BaseExample implements
 	/* And what should collide with what. */
 	public static final short MASKBITS_WALL = CATEGORYBIT_WALL
 			+ CATEGORYBIT_BOX + CATEGORYBIT_CIRCLE;
-	public static final short MASKBITS_BOX = CATEGORYBIT_WALL + CATEGORYBIT_BOX; // Missing:
 	// CATEGORYBIT_CIRCLE
 	public static final short MASKBITS_CIRCLE = CATEGORYBIT_WALL
 			+ CATEGORYBIT_CIRCLE; // Missing: CATEGORYBIT_BOX
@@ -75,9 +66,6 @@ public class PhysicsCollisionFilteringExample extends BaseExample implements
 	public static final FixtureDef WALL_FIXTURE_DEF = PhysicsFactory
 			.createFixtureDef(0, 0.5f, 0.5f, false, CATEGORYBIT_WALL,
 					MASKBITS_WALL, (short) 0);
-	public static final FixtureDef BOX_FIXTURE_DEF = PhysicsFactory
-			.createFixtureDef(1, 0.5f, 0.5f, false, CATEGORYBIT_BOX,
-					MASKBITS_BOX, (short) 0);
 	public static final FixtureDef CIRCLE_FIXTURE_DEF = PhysicsFactory
 			.createFixtureDef(1, 0.5f, 0.5f, false, CATEGORYBIT_CIRCLE,
 					MASKBITS_CIRCLE, (short) 0);
@@ -85,13 +73,8 @@ public class PhysicsCollisionFilteringExample extends BaseExample implements
 			.createFixtureDef(0, 0.0f, Float.POSITIVE_INFINITY, false,
 					CATEGORYBIT_HOLE, MASKBITS_HOLE, (short) 0);
 
-	// ===========================================================
-	// Fields
-	// ===========================================================
 
-	private Texture mTexture;
-
-	private TiledTextureRegion mBoxFaceTextureRegion;
+    private TiledTextureRegion mBoxFaceTextureRegion;
 	private TiledTextureRegion mCircleFaceTextureRegion;
 
 	private PhysicsWorld mPhysicsWorld;
@@ -99,17 +82,7 @@ public class PhysicsCollisionFilteringExample extends BaseExample implements
 	private int mFaceCount = 0;
 	private TiledTextureRegion mHoleTextureRegion;
 
-	// ===========================================================
-	// Constructors
-	// ===========================================================
-
-	// ===========================================================
-	// Getter & Setter
-	// ===========================================================
-
-	// ===========================================================
-	// Methods for/from SuperClass/Interfaces
-	// ===========================================================
+	
 
 	private static final String TAG_ENTITY = "entity";
 	private static final String TAG_ENTITY_ATTRIBUTE_X = "x";
@@ -118,16 +91,10 @@ public class PhysicsCollisionFilteringExample extends BaseExample implements
 	private static final String TAG_ENTITY_ATTRIBUTE_HEIGHT = "height";
 	private static final String TAG_ENTITY_ATTRIBUTE_TYPE = "type";
 
-	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_BOX = "box";
 	private TextureRegion mParallaxLayerBack;
 
 	public Engine onLoadEngine() {
-		/*
-		 * Toast.makeText(this, "Touch the screen to add objects.",
-		 * Toast.LENGTH_LONG).show(); Toast.makeText(this,
-		 * "Boxes will only collide with boxes.\nCircles will only collide with circles."
-		 * , Toast.LENGTH_LONG).show();
-		 */final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+		 final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 		final EngineOptions engineOptions = new EngineOptions(true,
 				ScreenOrientation.LANDSCAPE, new RatioResolutionPolicy(
 						CAMERA_WIDTH, CAMERA_HEIGHT), camera);
@@ -137,33 +104,29 @@ public class PhysicsCollisionFilteringExample extends BaseExample implements
 
 	public void onLoadResources() {
 		/* Textures. */
-		this.mTexture = new Texture(64, 64,
-				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+        Texture mTexture = new Texture(64, 64,
+            TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		TextureRegionFactory.setAssetBasePath("gfx/");
 		Texture mTexture1 = new Texture(128, 128,
 				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		/* TextureRegions. */
-		/*
-		 * this.mBoxFaceTextureRegion =
-		 * TextureRegionFactory.createTiledFromAsset(this.mTexture, this,
-		 * "face_box_tiled.png", 0, 0, 2, 1); // 64x32
-		 */this.mCircleFaceTextureRegion = TextureRegionFactory
-				.createTiledFromAsset(this.mTexture, this,
+
+		 this.mCircleFaceTextureRegion = TextureRegionFactory
+				.createTiledFromAsset(mTexture, this,
 						"ball.png", 0, 32, 2, 1); // 64x32
 		this.mHoleTextureRegion = TextureRegionFactory.createTiledFromAsset(
 				mTexture1, this, "hole.png", 0, 0, 2, 1); // 64x32
-		this.mEngine.getTextureManager().loadTexture(this.mTexture);
+		this.mEngine.getTextureManager().loadTexture(mTexture);
 		this.mEngine.getTextureManager().loadTexture(mTexture1);
 		this.enableAccelerometerSensor(this);
 
 		/* TextureRegions. */
 		this.mBoxFaceTextureRegion = TextureRegionFactory.createTiledFromAsset(
-				this.mTexture, this, "box.png", 0, 0, 2, 1); // 64x32
+            mTexture, this, "box.png", 0, 0, 2, 1); // 64x32
 		
 		
 		Texture mBackgroundTexture = new Texture(1024, 1024, TextureOptions.DEFAULT);
 		this.mParallaxLayerBack = TextureRegionFactory.createFromAsset(mBackgroundTexture, this, "background.png", 0, 188);
-		this.mEngine.getTextureManager().loadTextures(this.mTexture, mBackgroundTexture);
+		this.mEngine.getTextureManager().loadTextures(mTexture, mBackgroundTexture);
 
 
 	}
@@ -177,7 +140,7 @@ public class PhysicsCollisionFilteringExample extends BaseExample implements
 		final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(0, 0, 0, 5);
 		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(0.0f, new Sprite(0, CAMERA_HEIGHT - this.mParallaxLayerBack.getHeight(), this.mParallaxLayerBack)));
 		scene.setBackground(autoParallaxBackground);
-		scene.setOnSceneTouchListener(this);
+//		scene.setOnSceneTouchListener(this);
 
 		this.mPhysicsWorld = new PhysicsWorld(new Vector2(0,
 				SensorManager.GRAVITY_DEATH_STAR_I), false);
@@ -211,14 +174,12 @@ public class PhysicsCollisionFilteringExample extends BaseExample implements
 		scene.getFirstChild().attachChild(hole);
 		scene.registerUpdateHandler(this.mPhysicsWorld);
 
-		// TODO level code refactor it to other class
 
 		final LevelLoader levelLoader = new LevelLoader();
 		levelLoader.setAssetBasePath("level/");
 
 		levelLoader.registerEntityLoader(LevelConstants.TAG_LEVEL,
 				new IEntityLoader() {
-					@Override
 					public void onLoadEntity(final String pEntityName,
 							final Attributes pAttributes) {
 						final int width = SAXUtils.getIntAttributeOrThrow(
@@ -236,7 +197,6 @@ public class PhysicsCollisionFilteringExample extends BaseExample implements
 				});
 
 		levelLoader.registerEntityLoader(TAG_ENTITY, new IEntityLoader() {
-			@Override
 			public void onLoadEntity(final String pEntityName,
 					final Attributes pAttributes) {
 				final int x = SAXUtils.getIntAttributeOrThrow(pAttributes,
@@ -251,7 +211,7 @@ public class PhysicsCollisionFilteringExample extends BaseExample implements
 						TAG_ENTITY_ATTRIBUTE_TYPE);
 
 				PhysicsCollisionFilteringExample.this.addFace(scene, x, y,
-						width, height, type);
+						width, height);
 			}
 		});
 
@@ -265,7 +225,7 @@ public class PhysicsCollisionFilteringExample extends BaseExample implements
 	}
 
 	private void addFace(final Scene pScene, final float pX, final float pY,
-			final int pWidth, final int pHeight, final String pType) {
+			final int pWidth, final int pHeight) {
 		final AnimatedSprite face;
 
 		face = new AnimatedSprite(pX, pY, pWidth, pHeight,
@@ -280,16 +240,6 @@ public class PhysicsCollisionFilteringExample extends BaseExample implements
 		this.addFace(360, 240);
 	}
 
-	public boolean onSceneTouchEvent(final Scene pScene,
-			final TouchEvent pSceneTouchEvent) {
-		/*
-		 * if(this.mPhysicsWorld != null) { if(pSceneTouchEvent.isActionDown())
-		 * { this.addFace(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
-		 * return true; } }
-		 */
-		return false;
-	}
-
 	public void onAccelerometerChanged(
 			final AccelerometerData pAccelerometerData) {
 		final Vector2 gravity = Vector2Pool.obtain(pAccelerometerData.getY(),
@@ -298,40 +248,22 @@ public class PhysicsCollisionFilteringExample extends BaseExample implements
 		Vector2Pool.recycle(gravity);
 	}
 
-	// ===========================================================
-	// Methods
-	// ===========================================================
 
 	private void addFace(final float pX, final float pY) {
 		final Scene scene = this.mEngine.getScene();
 
-		/*
-		 * this.mFaceCount++; Debug.d("Faces: " + this.mFaceCount);
-		 * 
-		 * final AnimatedSprite face; final Body body;
-		 * 
-		 * if(this.mFaceCount % 2 == 0) { face = new AnimatedSprite(pX, pY,
-		 * this.mBoxFaceTextureRegion); body =
-		 * PhysicsFactory.createBoxBody(this.mPhysicsWorld, face,
-		 * BodyType.DynamicBody, BOX_FIXTURE_DEF); } else { face = new
-		 * AnimatedSprite(pX, pY, this.mCircleFaceTextureRegion); body =
-		 * PhysicsFactory.createCircleBody(this.mPhysicsWorld, face,
-		 * BodyType.DynamicBody, CIRCLE_FIXTURE_DEF); }
-		 */
+
 		final AnimatedSprite face;
 		final Body body;
 
 		face = new AnimatedSprite(pX, pY, this.mCircleFaceTextureRegion);
 		body = PhysicsFactory.createCircleBody(this.mPhysicsWorld, face,
 				BodyType.DynamicBody, CIRCLE_FIXTURE_DEF);
-		face.animate(200);
+//		face.animate(200);
 
 		scene.getLastChild().attachChild(face);
 		this.mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(face,
 				body, true, true));
 	}
 
-	// ===========================================================
-	// Inner and Anonymous Classes
-	// ===========================================================
 }
