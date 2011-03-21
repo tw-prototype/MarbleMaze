@@ -2,14 +2,10 @@ package com.thoughtworks.mm;
 
 import java.io.IOException;
 
-import android.hardware.SensorManager;
-import android.widget.Toast;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.Camera;
+import org.anddev.andengine.engine.handler.timer.ITimerCallback;
+import org.anddev.andengine.engine.handler.timer.TimerHandler;
 import org.anddev.andengine.engine.options.EngineOptions;
 import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
@@ -39,12 +35,21 @@ import org.anddev.andengine.util.Debug;
 import org.anddev.andengine.util.SAXUtils;
 import org.xml.sax.Attributes;
 
+import android.hardware.SensorManager;
+import android.os.Handler;
+import android.os.Message;
+import android.widget.Toast;
+
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+
 /**
  * @author Nicolas Gramlich
  * @since 14:33:38 - 03.10.2010
  */
-public class MarbleMaze extends BaseExample implements
-		IAccelerometerListener {
+public class MarbleMaze extends BaseExample implements IAccelerometerListener {
 
 	private static final int CAMERA_WIDTH = 640;
 	private static final int CAMERA_HEIGHT = 480;
@@ -73,13 +78,14 @@ public class MarbleMaze extends BaseExample implements
 			.createFixtureDef(0, 0.0f, Float.POSITIVE_INFINITY, false,
 					CATEGORYBIT_HOLE, MASKBITS_HOLE, (short) 0);
 
-
-    private TiledTextureRegion mBoxFaceTextureRegion;
+	private TiledTextureRegion mBoxFaceTextureRegion;
 	private TiledTextureRegion mCircleFaceTextureRegion;
 
 	private PhysicsWorld mPhysicsWorld;
 
 	private TiledTextureRegion mHoleTextureRegion;
+
+	private AnimatedSprite ball;
 
 	private static final String TAG_ENTITY = "entity";
 	private static final String TAG_ENTITY_ATTRIBUTE_X = "x";
@@ -88,9 +94,18 @@ public class MarbleMaze extends BaseExample implements
 	private static final String TAG_ENTITY_ATTRIBUTE_HEIGHT = "height";
 
 	private TextureRegion mParallaxLayerBack;
+	private Handler handler = new Handler(){
+	        @Override
+	        public void handleMessage(Message msg) {
+
+				Toast.makeText(MarbleMaze.this, "You win!",
+						Toast.LENGTH_SHORT).show();
+
+	        }
+	    };
 
 	public Engine onLoadEngine() {
-		 final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+		final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 		final EngineOptions engineOptions = new EngineOptions(true,
 				ScreenOrientation.LANDSCAPE, new RatioResolutionPolicy(
 						CAMERA_WIDTH, CAMERA_HEIGHT), camera);
@@ -100,11 +115,13 @@ public class MarbleMaze extends BaseExample implements
 
 	public void onLoadResources() {
 		/* Textures. */
-        Texture mTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		Texture mTexture = new Texture(64, 64,
+				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		TextureRegionFactory.setAssetBasePath("gfx/");
-		Texture mTexture1 = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		Texture mTexture1 = new Texture(128, 128,
+				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
-		 this.mCircleFaceTextureRegion = TextureRegionFactory
+		this.mCircleFaceTextureRegion = TextureRegionFactory
 				.createTiledFromAsset(mTexture, this, "ball.png", 0, 32, 1, 1); // 32x32
 		this.mHoleTextureRegion = TextureRegionFactory.createTiledFromAsset(
 				mTexture1, this, "hole.png", 32, 32, 1, 1); // 64x32
@@ -114,13 +131,14 @@ public class MarbleMaze extends BaseExample implements
 
 		/* TextureRegions. */
 		this.mBoxFaceTextureRegion = TextureRegionFactory.createTiledFromAsset(
-            mTexture, this, "box.png", 0, 0, 2, 1); // 64x32
-		
-		
-		Texture mBackgroundTexture = new Texture(1024, 1024, TextureOptions.DEFAULT);
-		this.mParallaxLayerBack = TextureRegionFactory.createFromAsset(mBackgroundTexture, this, "background.png", 0, 188);
-		this.mEngine.getTextureManager().loadTextures(mTexture, mBackgroundTexture);
+				mTexture, this, "box.png", 0, 0, 2, 1); // 64x32
 
+		Texture mBackgroundTexture = new Texture(1024, 1024,
+				TextureOptions.DEFAULT);
+		this.mParallaxLayerBack = TextureRegionFactory.createFromAsset(
+				mBackgroundTexture, this, "background.png", 0, 188);
+		this.mEngine.getTextureManager().loadTextures(mTexture,
+				mBackgroundTexture);
 
 	}
 
@@ -129,11 +147,15 @@ public class MarbleMaze extends BaseExample implements
 
 		final Scene scene = new Scene(2);
 		// scene.setBackground(new ColorBackground(0, 0, 0));
-		
-		final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(0, 0, 0, 5);
-		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(0.0f, new Sprite(0, CAMERA_HEIGHT - this.mParallaxLayerBack.getHeight(), this.mParallaxLayerBack)));
+
+		final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(
+				0, 0, 0, 5);
+		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(0.0f,
+				new Sprite(0, CAMERA_HEIGHT
+						- this.mParallaxLayerBack.getHeight(),
+						this.mParallaxLayerBack)));
 		scene.setBackground(autoParallaxBackground);
-//		scene.setOnSceneTouchListener(this);
+		// scene.setOnSceneTouchListener(this);
 
 		this.mPhysicsWorld = new PhysicsWorld(new Vector2(0,
 				SensorManager.GRAVITY_DEATH_STAR_I), false);
@@ -161,75 +183,81 @@ public class MarbleMaze extends BaseExample implements
 		scene.getFirstChild().attachChild(right);
 		scene.getFirstChild().attachChild(hole);
 		scene.registerUpdateHandler(this.mPhysicsWorld);
+		scene.registerUpdateHandler(new TimerHandler(0.5f, true,
+				new ITimerCallback() {
+					@Override
+					public void onTimePassed(final TimerHandler pTimerHandler) {
+						if (hole.contains(ball.getX(), ball.getY())) {
+							  handler.sendEmptyMessage(0);
+						}
+					}
+				}));
 
-
-        createMaze(scene);
+		createMaze(scene);
 
 		return scene;
 	}
 
-    private void createMaze(final Scene scene) {
-        final LevelLoader levelLoader = new LevelLoader();
-        levelLoader.setAssetBasePath("level/");
+	private void createMaze(final Scene scene) {
+		final LevelLoader levelLoader = new LevelLoader();
+		levelLoader.setAssetBasePath("level/");
 
-        levelLoader.registerEntityLoader(LevelConstants.TAG_LEVEL,
-                new IEntityLoader() {
-                    public void onLoadEntity(final String pEntityName,
-                            final Attributes pAttributes) {
-                        final int width = SAXUtils.getIntAttributeOrThrow(
-                                pAttributes,
-                                LevelConstants.TAG_LEVEL_ATTRIBUTE_WIDTH);
-                        final int height = SAXUtils.getIntAttributeOrThrow(
-                                pAttributes,
-                                LevelConstants.TAG_LEVEL_ATTRIBUTE_HEIGHT);
-                        Toast.makeText(
-                                MarbleMaze.this,
-                                "Loaded level with width=" + width
-                                        + " and height=" + height + ".",
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
+		levelLoader.registerEntityLoader(LevelConstants.TAG_LEVEL,
+				new IEntityLoader() {
+					public void onLoadEntity(final String pEntityName,
+							final Attributes pAttributes) {
+						final int width = SAXUtils.getIntAttributeOrThrow(
+								pAttributes,
+								LevelConstants.TAG_LEVEL_ATTRIBUTE_WIDTH);
+						final int height = SAXUtils.getIntAttributeOrThrow(
+								pAttributes,
+								LevelConstants.TAG_LEVEL_ATTRIBUTE_HEIGHT);
+						Toast.makeText(
+								MarbleMaze.this,
+								"Loaded level with width=" + width
+										+ " and height=" + height + ".",
+								Toast.LENGTH_LONG).show();
+					}
+				});
 
-        levelLoader.registerEntityLoader(TAG_ENTITY, new IEntityLoader() {
-            public void onLoadEntity(final String pEntityName,
-                    final Attributes pAttributes) {
-                final int x = SAXUtils.getIntAttributeOrThrow(pAttributes,
-                        TAG_ENTITY_ATTRIBUTE_X);
-                final int y = SAXUtils.getIntAttributeOrThrow(pAttributes,
-                        TAG_ENTITY_ATTRIBUTE_Y);
-                final int width = SAXUtils.getIntAttributeOrThrow(pAttributes,
-                        TAG_ENTITY_ATTRIBUTE_WIDTH);
-                final int height = SAXUtils.getIntAttributeOrThrow(pAttributes,
-                        TAG_ENTITY_ATTRIBUTE_HEIGHT);
-                MarbleMaze.this.addFace(scene, x, y,
-                        width, height);
-            }
-        });
+		levelLoader.registerEntityLoader(TAG_ENTITY, new IEntityLoader() {
+			public void onLoadEntity(final String pEntityName,
+					final Attributes pAttributes) {
+				final int x = SAXUtils.getIntAttributeOrThrow(pAttributes,
+						TAG_ENTITY_ATTRIBUTE_X);
+				final int y = SAXUtils.getIntAttributeOrThrow(pAttributes,
+						TAG_ENTITY_ATTRIBUTE_Y);
+				final int width = SAXUtils.getIntAttributeOrThrow(pAttributes,
+						TAG_ENTITY_ATTRIBUTE_WIDTH);
+				final int height = SAXUtils.getIntAttributeOrThrow(pAttributes,
+						TAG_ENTITY_ATTRIBUTE_HEIGHT);
+				MarbleMaze.this.addFace(scene, x, y, width, height);
+			}
+		});
 
-        try {
-            levelLoader.loadLevelFromAsset(this, "example.lvl");
-        } catch (final IOException e) {
-            Debug.e(e);
-        }
-    }
+		try {
+			levelLoader.loadLevelFromAsset(this, "example.lvl");
+		} catch (final IOException e) {
+			Debug.e(e);
+		}
+	}
 
-    private void addFace(final Scene pScene, final float pX, final float pY,
-			final int pWidth, final int pHeight) {	
+	private void addFace(final Scene pScene, final float pX, final float pY,
+			final int pWidth, final int pHeight) {
 		final AnimatedSprite face;
 
 		face = new AnimatedSprite(pX, pY, pWidth, pHeight,
 				this.mBoxFaceTextureRegion);
 
-//		face.animate(200);
+		// face.animate(200);
 		final Body body;
 
 		body = PhysicsFactory.createBoxBody(this.mPhysicsWorld, face,
 				BodyType.StaticBody, WALL_FIXTURE_DEF);
-//		face.animate(200);
+		// face.animate(200);
 
 		this.mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(face,
 				body, true, true));
-
 
 		pScene.getLastChild().attachChild(face);
 	}
@@ -246,21 +274,17 @@ public class MarbleMaze extends BaseExample implements
 		Vector2Pool.recycle(gravity);
 	}
 
-
 	private void addFace(final float pX, final float pY) {
 		final Scene scene = this.mEngine.getScene();
-
-
-		final AnimatedSprite face;
 		final Body body;
 
-		face = new AnimatedSprite(pX, pY, this.mCircleFaceTextureRegion);
-		body = PhysicsFactory.createCircleBody(this.mPhysicsWorld, face,
+		ball = new AnimatedSprite(pX, pY, this.mCircleFaceTextureRegion);
+		body = PhysicsFactory.createCircleBody(this.mPhysicsWorld, ball,
 				BodyType.DynamicBody, CIRCLE_FIXTURE_DEF);
-//		face.animate(200);
+		// face.animate(200);
 
-		scene.getLastChild().attachChild(face);
-		this.mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(face,
+		scene.getLastChild().attachChild(ball);
+		this.mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(ball,
 				body, true, true));
 	}
 
