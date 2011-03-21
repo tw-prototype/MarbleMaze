@@ -86,7 +86,6 @@ public class MarbleMaze extends BaseExample implements
 	private static final String TAG_ENTITY_ATTRIBUTE_Y = "y";
 	private static final String TAG_ENTITY_ATTRIBUTE_WIDTH = "width";
 	private static final String TAG_ENTITY_ATTRIBUTE_HEIGHT = "height";
-	private static final String TAG_ENTITY_ATTRIBUTE_TYPE = "type";
 
 	private TextureRegion mParallaxLayerBack;
 
@@ -106,9 +105,9 @@ public class MarbleMaze extends BaseExample implements
 		Texture mTexture1 = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
 		 this.mCircleFaceTextureRegion = TextureRegionFactory
-				.createTiledFromAsset(mTexture, this, "ball2.png", 0, 32, 1, 1); // 32x32
+				.createTiledFromAsset(mTexture, this, "ball.png", 0, 32, 1, 1); // 32x32
 		this.mHoleTextureRegion = TextureRegionFactory.createTiledFromAsset(
-				mTexture1, this, "hole2.png", 32, 32, 1, 1); // 64x32
+				mTexture1, this, "hole.png", 32, 32, 1, 1); // 64x32
 		this.mEngine.getTextureManager().loadTexture(mTexture);
 		this.mEngine.getTextureManager().loadTexture(mTexture1);
 		this.enableAccelerometerSensor(this);
@@ -207,9 +206,6 @@ public class MarbleMaze extends BaseExample implements
                         TAG_ENTITY_ATTRIBUTE_WIDTH);
                 final int height = SAXUtils.getIntAttributeOrThrow(pAttributes,
                         TAG_ENTITY_ATTRIBUTE_HEIGHT);
-                final String type = SAXUtils.getAttributeOrThrow(pAttributes,
-                        TAG_ENTITY_ATTRIBUTE_TYPE);
-
                 MarbleMaze.this.addFace(scene, x, y,
                         width, height);
             }
