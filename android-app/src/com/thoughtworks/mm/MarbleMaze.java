@@ -46,7 +46,7 @@ import org.xml.sax.Attributes;
 public class MarbleMaze extends BaseExample implements
 		IAccelerometerListener {
 
-	private static final int CAMERA_WIDTH = 720;
+	private static final int CAMERA_WIDTH = 640;
 	private static final int CAMERA_HEIGHT = 480;
 
 	/* The categories. */
@@ -143,8 +143,6 @@ public class MarbleMaze extends BaseExample implements
 		final Shape roof = new Rectangle(0, 0, CAMERA_WIDTH, 2);
 		final Shape left = new Rectangle(0, 0, 2, CAMERA_HEIGHT);
 		final Shape right = new Rectangle(CAMERA_WIDTH - 2, 0, 2, CAMERA_HEIGHT);
-		final Shape center = new Rectangle(CAMERA_WIDTH / 2, CAMERA_HEIGHT / 2,
-				50, CAMERA_WIDTH / 2);
 		final Shape hole = new AnimatedSprite(2, 2, this.mHoleTextureRegion);
 
 		PhysicsFactory.createBoxBody(this.mPhysicsWorld, ground,
@@ -155,15 +153,12 @@ public class MarbleMaze extends BaseExample implements
 				BodyType.StaticBody, WALL_FIXTURE_DEF);
 		PhysicsFactory.createBoxBody(this.mPhysicsWorld, right,
 				BodyType.StaticBody, WALL_FIXTURE_DEF);
-		PhysicsFactory.createBoxBody(this.mPhysicsWorld, center,
-				BodyType.StaticBody, WALL_FIXTURE_DEF);
 		PhysicsFactory.createCircleBody(this.mPhysicsWorld, hole,
 				BodyType.StaticBody, HOLE_FIXTURE_DEF);
 		scene.getFirstChild().attachChild(ground);
 		scene.getFirstChild().attachChild(roof);
 		scene.getFirstChild().attachChild(left);
 		scene.getFirstChild().attachChild(right);
-		scene.getFirstChild().attachChild(center);
 		scene.getFirstChild().attachChild(hole);
 		scene.registerUpdateHandler(this.mPhysicsWorld);
 
@@ -219,13 +214,22 @@ public class MarbleMaze extends BaseExample implements
     }
 
     private void addFace(final Scene pScene, final float pX, final float pY,
-			final int pWidth, final int pHeight) {
+			final int pWidth, final int pHeight) {	
 		final AnimatedSprite face;
 
 		face = new AnimatedSprite(pX, pY, pWidth, pHeight,
 				this.mBoxFaceTextureRegion);
 
 //		face.animate(200);
+		final Body body;
+
+		body = PhysicsFactory.createBoxBody(this.mPhysicsWorld, face,
+				BodyType.StaticBody, WALL_FIXTURE_DEF);
+//		face.animate(200);
+
+		this.mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(face,
+				body, true, true));
+
 
 		pScene.getLastChild().attachChild(face);
 	}
