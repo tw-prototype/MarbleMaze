@@ -34,8 +34,8 @@ public class Level {
 	private TiledTextureRegion mBoxFaceTextureRegion;
 	private TiledTextureRegion mHoleTextureRegion;
 	
-	final MarbleMaze maze;
-	public Level(MarbleMaze maze) {
+	final MarbleMazeActivity maze;
+	public Level(MarbleMazeActivity maze) {
 		   this.maze = maze;
 	        Texture mTexture1 = new Texture(128, 128,
 	                TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -108,7 +108,7 @@ public class Level {
 		final Body body;
 
 		body = PhysicsFactory.createBoxBody(maze.getmPhysicsWorld(), face,
-				BodyType.StaticBody, MarbleMaze.WALL_FIXTURE_DEF);
+				BodyType.StaticBody, MarbleMazeActivity.WALL_FIXTURE_DEF);
 		// face.animate(200);
 
 		maze.getmPhysicsWorld().registerPhysicsConnector(new PhysicsConnector(face,

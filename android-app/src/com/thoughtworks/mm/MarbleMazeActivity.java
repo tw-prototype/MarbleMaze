@@ -26,10 +26,13 @@ import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import org.anddev.andengine.sensor.accelerometer.AccelerometerData;
 import org.anddev.andengine.sensor.accelerometer.IAccelerometerListener;
+import org.anddev.andengine.ui.activity.BaseGameActivity;
 
 import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.badlogic.gdx.math.Vector2;
@@ -37,8 +40,60 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 
-public class MarbleMaze extends BaseExample implements IAccelerometerListener {
+public class MarbleMazeActivity extends BaseGameActivity implements IAccelerometerListener {
 
+	
+	
+	  private static final int MENU_TRACE = Menu.FIRST;
+
+	    static final int CAMERA_WIDTH = 640;
+		static final int CAMERA_HEIGHT = 480;
+
+
+		/* The categories. */
+		public static final short CATEGORYBIT_WALL = 1;
+		public static final short CATEGORYBIT_BOX = 2;
+		public static final short CATEGORYBIT_CIRCLE = 4;
+		public static final short CATEGORYBIT_HOLE = 8;
+
+
+	    /* And what should collide with what. */
+	    public static final short MASKBITS_WALL = CATEGORYBIT_WALL + CATEGORYBIT_BOX + CATEGORYBIT_CIRCLE;
+	    // CATEGORYBIT_CIRCLE
+	    public static final short MASKBITS_CIRCLE = CATEGORYBIT_WALL + CATEGORYBIT_CIRCLE; // Missing: CATEGORYBIT_BOX
+	    public static final short MASKBITS_HOLE = 0; // Missing: everything
+	    
+
+
+
+	    @Override
+	    public boolean onCreateOptionsMenu(final Menu pMenu) {
+	        pMenu.add(Menu.NONE, MENU_TRACE, Menu.NONE, "Start Method Tracing");
+	        return super.onCreateOptionsMenu(pMenu);
+	    }
+
+	    @Override
+	    public boolean onPrepareOptionsMenu(final Menu pMenu) {
+	        pMenu.findItem(MENU_TRACE).setTitle(this.mEngine.isMethodTracing() ? "Stop Method Tracing" : "Start Method Tracing");
+	        return super.onPrepareOptionsMenu(pMenu);
+	    }
+
+	    @Override
+	    public boolean onMenuItemSelected(final int pFeatureId, final MenuItem pItem) {
+	        switch (pItem.getItemId()) {
+	        case MENU_TRACE:
+	            if (this.mEngine.isMethodTracing()) {
+	                this.mEngine.stopMethodTracing();
+	            } else {
+	                this.mEngine.startMethodTracing("AndEngine_" + System.currentTimeMillis() + ".trace");
+	            }
+	            return true;
+	        default:
+	            return super.onMenuItemSelected(pFeatureId, pItem);
+	        }
+	    }
+
+	    
     public static final FixtureDef WALL_FIXTURE_DEF = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f, false, CATEGORYBIT_WALL,
         MASKBITS_WALL, (short) 0);
     public static final FixtureDef CIRCLE_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 0.5f, 0.5f, false, CATEGORYBIT_CIRCLE,
@@ -67,7 +122,7 @@ public class MarbleMaze extends BaseExample implements IAccelerometerListener {
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Toast.makeText(MarbleMaze.this, "You win!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MarbleMazeActivity.this, "You win!", Toast.LENGTH_SHORT).show();
         }
     };
 	private Texture mTexture;
