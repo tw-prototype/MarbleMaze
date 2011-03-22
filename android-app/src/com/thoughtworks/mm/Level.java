@@ -9,6 +9,8 @@ import org.anddev.andengine.extension.physics.box2d.PhysicsFactory;
 import org.anddev.andengine.level.LevelLoader;
 import org.anddev.andengine.level.LevelLoader.IEntityLoader;
 import org.anddev.andengine.level.util.constants.LevelConstants;
+import org.anddev.andengine.opengl.texture.Texture;
+import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import org.anddev.andengine.util.Debug;
@@ -27,13 +29,20 @@ public class Level {
 	static final String TAG_ENTITY_ATTRIBUTE_Y = "y";
 	static final String TAG_ENTITY_ATTRIBUTE_WIDTH = "width";
 	static final String TAG_ENTITY_ATTRIBUTE_HEIGHT = "height";
-
+	private static final String TAG_ENTITY_ATTRIBUTE_TYPE = "type";
+	
 	private TiledTextureRegion mBoxFaceTextureRegion;
+	private TiledTextureRegion mHoleTextureRegion;
+	
 	final MarbleMaze maze;
 	public Level(MarbleMaze maze) {
 		   this.maze = maze;
+	        Texture mTexture1 = new Texture(128, 128,
+	                TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.mBoxFaceTextureRegion = TextureRegionFactory.createTiledFromAsset(
 				maze.getmTexture(), maze, "box.png", 0, 0, 2, 1); // 64x32
+	    this.mHoleTextureRegion = TextureRegionFactory.createTiledFromAsset(mTexture1, maze, "hole.png", 32, 32, 1, 1); 
+	    maze.getEngine().getTextureManager().loadTexture(mTexture1);
 	}
 
 	void createMaze(final Scene scene) {
@@ -69,7 +78,8 @@ public class Level {
 						TAG_ENTITY_ATTRIBUTE_WIDTH);
 				final int height = SAXUtils.getIntAttributeOrThrow(pAttributes,
 						TAG_ENTITY_ATTRIBUTE_HEIGHT);
-				addFace(scene, x, y, width, height);
+				final String type = SAXUtils.getAttributeOrThrow(pAttributes, TAG_ENTITY_ATTRIBUTE_TYPE);
+				addObject(scene, x, y, width, height,type);
 			}
 		});
 
@@ -80,12 +90,19 @@ public class Level {
 		}
 	}
 
-	void addFace(final Scene pScene, final float pX, final float pY,
-			final int pWidth, final int pHeight) {
+	void addObject(final Scene pScene, final float pX, final float pY,
+			final int pWidth, final int pHeight, String type) {
 		final AnimatedSprite face;
 
-		face = new AnimatedSprite(pX, pY, pWidth, pHeight,
-				this.mBoxFaceTextureRegion);
+		if(type.equals("box")) {
+			face = new AnimatedSprite(pX, pY, pWidth, pHeight,
+					this.mBoxFaceTextureRegion);
+		} else {
+			face = new AnimatedSprite(pX, pY, pWidth, pHeight,
+					this.mHoleTextureRegion);
+		}
+		
+
 
 		// face.animate(200);
 		final Body body;

@@ -8,5 +8,6 @@
   <entity x="416" y="0" width="32" height="96" type="box"/>
   <entity x="432" y="352" width="32" height="256" type="box"/>
   <entity x="560" y="112" width="32" height="192" type="box"/>
+  <entity x="200" y="200" width="64" height="64" type="hole"/>
 
 </level>
