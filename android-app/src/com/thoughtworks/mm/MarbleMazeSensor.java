@@ -21,7 +21,8 @@ public class MarbleMazeSensor extends Activity implements SensorEventListener {
 	private TextView orientZValue;
 
 	private SensorManager sensorManager = null;
-//	private SensorManagerSimulator sensorManager = null;
+
+	// private SensorManagerSimulator sensorManager = null;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -29,8 +30,9 @@ public class MarbleMazeSensor extends Activity implements SensorEventListener {
 		super.onCreate(savedInstanceState);
 		// Get a reference to a SensorManager
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-//		sensorManager = SensorManagerSimulator.getSystemService(this, SENSOR_SERVICE);
-//		sensorManager.connectSimulator();
+		// sensorManager = SensorManagerSimulator.getSystemService(this,
+		// SENSOR_SERVICE);
+		// sensorManager.connectSimulator();
 
 		setContentView(R.layout.main);
 
@@ -59,14 +61,14 @@ public class MarbleMazeSensor extends Activity implements SensorEventListener {
 	public void onSensorChanged(SensorEvent sensorEvent) {
 		synchronized (this) {
 			if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-//			if (sensorEvent.type == Sensor.TYPE_ACCELEROMETER) {
+				// if (sensorEvent.type == Sensor.TYPE_ACCELEROMETER) {
 				accelXValue.setText(Float.toString(sensorEvent.values[0]));
 				accelYValue.setText(Float.toString(sensorEvent.values[1]));
 				accelZValue.setText(Float.toString(sensorEvent.values[2]));
 			}
 
 			if (sensorEvent.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-//			if (sensorEvent.type == Sensor.TYPE_ORIENTATION) {
+				// if (sensorEvent.type == Sensor.TYPE_ORIENTATION) {
 				orientXValue.setText(Float.toString(sensorEvent.values[0]));
 				orientYValue.setText(Float.toString(sensorEvent.values[1]));
 				orientZValue.setText(Float.toString(sensorEvent.values[2]));
@@ -76,19 +78,19 @@ public class MarbleMazeSensor extends Activity implements SensorEventListener {
 
 	// I've chosen to not implement this method
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
-		
+
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		// Register this class as a listener for the accelerometer sensor
-		sensorManager.registerListener(this,
-				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+		sensorManager.registerListener(this, sensorManager
+				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
 				SensorManager.SENSOR_DELAY_NORMAL);
 		// ...and the orientation sensor
-		sensorManager.registerListener(this,
-				sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+		sensorManager.registerListener(this, sensorManager
+				.getDefaultSensor(Sensor.TYPE_ORIENTATION),
 				SensorManager.SENSOR_DELAY_NORMAL);
 	}
 
@@ -98,7 +100,7 @@ public class MarbleMazeSensor extends Activity implements SensorEventListener {
 		sensorManager.unregisterListener(this);
 		super.onStop();
 	}
-	
+
 	// constructor for testing purposes
 	public MarbleMazeSensor(SensorManager sensorManager) {
 		this.sensorManager = sensorManager;
