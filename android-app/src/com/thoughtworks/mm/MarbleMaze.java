@@ -148,7 +148,7 @@ public class MarbleMaze extends BaseExample implements IAccelerometerListener {
             }));
 
         new Level(this).createMaze(scene);
-
+//        initJoints(scene);
         return scene;
     }
 
@@ -176,5 +176,54 @@ public class MarbleMaze extends BaseExample implements IAccelerometerListener {
         scene.getLastChild().attachChild(ball);
         this.mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(ball, body, true, true));
     }
+
+//    private void initJoints(final Scene pScene) {
+//		final int centerX = CAMERA_WIDTH / 2;
+//		final int centerY = CAMERA_HEIGHT / 2;
+//
+//		final int spriteWidth = this.mBoxFaceTextureRegion.getTileWidth();
+//		final int spriteHeight = this.mBoxFaceTextureRegion.getTileHeight();
+//
+//		final FixtureDef objectFixtureDef = PhysicsFactory.createFixtureDef(10, 0.2f, 0.5f);
+//
+//		for(int i = 0; i < 1; i++) {
+//			final float anchorFaceX = centerX - spriteWidth * 0.5f + 220 * (i - 1);
+//			final float anchorFaceY = centerY - spriteHeight * 0.5f;
+//
+//			final AnimatedSprite anchorFace = new AnimatedSprite(anchorFaceX, anchorFaceY, this.mBoxFaceTextureRegion);
+//			final Body anchorBody = PhysicsFactory.createBoxBody(this.mPhysicsWorld, anchorFace, BodyType.StaticBody, objectFixtureDef);
+//
+//			final AnimatedSprite movingFace = new AnimatedSprite(anchorFaceX, anchorFaceY + 90, this.mCircleFaceTextureRegion);
+//			final Body movingBody = PhysicsFactory.createCircleBody(this.mPhysicsWorld, movingFace, BodyType.DynamicBody, objectFixtureDef);
+//
+////			anchorFace.animate(200);
+////			anchorFace.animate(200);
+//
+//			pScene.getLastChild().attachChild(anchorFace);
+//			pScene.getLastChild().attachChild(movingFace);
+//
+////			final Line connectionLine = new Line(anchorFaceX + spriteWidth / 2, anchorFaceY + spriteHeight / 2, anchorFaceX + spriteWidth / 2, anchorFaceY + spriteHeight / 2);
+//			final Line connectionLine = new Line(100, 240, 99, 239);
+//			pScene.getFirstChild().attachChild(connectionLine);
+//			this.mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(anchorFace, anchorBody, true, true){
+//				@Override
+//				public void onUpdate(final float pSecondsElapsed) {
+//					super.onUpdate(pSecondsElapsed);
+//					final Vector2 movingBodyWorldCenter = movingBody.getWorldCenter();
+//					connectionLine.setPosition(connectionLine.getX1(), connectionLine.getY1(), movingBodyWorldCenter.x * PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT, movingBodyWorldCenter.y * PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT);
+//				}
+//			});
+//			this.mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(movingFace, movingBody, true, true));
+//
+//
+//			final RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
+//			revoluteJointDef.initialize(anchorBody, movingBody, anchorBody.getWorldCenter());
+//			revoluteJointDef.enableMotor = true;
+//			revoluteJointDef.motorSpeed = 10;
+//			revoluteJointDef.maxMotorTorque = 200;
+//
+//			this.mPhysicsWorld.createJoint(revoluteJointDef);
+//		}
+//	}
 
 }
