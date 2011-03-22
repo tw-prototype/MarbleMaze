@@ -1,4 +1,4 @@
-package com.thoughtworks.mm;
+package com.thoughtworks.mm.level;
 
 import java.io.IOException;
 
@@ -21,6 +21,8 @@ import android.widget.Toast;
 
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.thoughtworks.mm.MarbleMazeActivity;
+import com.thoughtworks.mm.entity.Pocket;
 
 public class Level {
 
@@ -47,7 +49,7 @@ public class Level {
 		maze.getEngine().getTextureManager().loadTexture(mTexture1);
 	}
 
-	void createMaze(final Scene scene) {
+	public void createMaze(final Scene scene) {
 		final LevelLoader levelLoader = new LevelLoader();
 		levelLoader.setAssetBasePath("level/");
 
@@ -101,7 +103,7 @@ public class Level {
 			face = new AnimatedSprite(pX, pY, pWidth, pHeight,
 					this.mBoxFaceTextureRegion);
 		} else {
-			face = new AnimatedSprite(pX, pY, pWidth, pHeight,
+			face = new Pocket(pX, pY,
 					this.mHoleTextureRegion);
 		}
 

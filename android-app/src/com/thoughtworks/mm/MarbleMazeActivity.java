@@ -39,6 +39,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.thoughtworks.mm.entity.Ball;
+import com.thoughtworks.mm.level.Level;
 
 public class MarbleMazeActivity extends BaseGameActivity implements
 		IAccelerometerListener {
@@ -116,7 +118,7 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 
 	private TiledTextureRegion mHoleTextureRegion;
 
-	private AnimatedSprite ball;
+	private Ball ball;
 
 	private TextureRegion mParallaxLayerBack;
 	private Handler handler = new Handler() {
@@ -239,7 +241,7 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 		final Scene scene = this.mEngine.getScene();
 		final Body body;
 
-		ball = new AnimatedSprite(pX, pY, this.mCircleFaceTextureRegion);
+		ball = new Ball(pX, pY, this.mCircleFaceTextureRegion);
 		body = PhysicsFactory.createCircleBody(this.mPhysicsWorld, ball,
 				BodyType.DynamicBody, CIRCLE_FIXTURE_DEF);
 		// face.animate(200);
