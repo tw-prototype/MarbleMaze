@@ -52,16 +52,15 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 
 	/* The categories. */
 	public static final short CATEGORYBIT_WALL = 1;
-	public static final short CATEGORYBIT_BOX = 2;
 
 
 	/* And what should collide with what. */
 	public static final short MASKBITS_WALL = CATEGORYBIT_WALL
-			+ CATEGORYBIT_BOX + Ball.CATEGORYBIT_BALL;
-	// CATEGORYBIT_CIRCLE
+			+  Ball.CATEGORYBIT_BALL;
+	/*// CATEGORYBIT_CIRCLE
 	public static final short MASKBITS_CIRCLE = CATEGORYBIT_WALL
 			+ Ball.CATEGORYBIT_BALL; // Missing: CATEGORYBIT_BOX
-
+*/
 
 	@Override
 	public boolean onCreateOptionsMenu(final Menu pMenu) {

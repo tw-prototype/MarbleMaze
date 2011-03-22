@@ -123,6 +123,14 @@ public class Level {
 		if (type.equals("box")) {
 			face = new AnimatedSprite(pX, pY, pWidth, pHeight,
 					this.mBoxFaceTextureRegion);
+			final Body body;
+
+			body = PhysicsFactory.createBoxBody(maze.getmPhysicsWorld(), face,
+					BodyType.StaticBody, MarbleMazeActivity.WALL_FIXTURE_DEF);
+
+			maze.getmPhysicsWorld().registerPhysicsConnector(
+					new PhysicsConnector(face, body, true, true));
+
 		} else if (type.equals("pocket")){
 			pocket = new Pocket(pX, pY,
 					maze);
@@ -134,17 +142,7 @@ public class Level {
 			face =  ball;
 		
 		}
-
-		// face.animate(200);
-		final Body body;
-
-		body = PhysicsFactory.createBoxBody(maze.getmPhysicsWorld(), face,
-				BodyType.StaticBody, MarbleMazeActivity.WALL_FIXTURE_DEF);
-		// face.animate(200);
-
-		maze.getmPhysicsWorld().registerPhysicsConnector(
-				new PhysicsConnector(face, body, true, true));
-
+		
 		pScene.getLastChild().attachChild(face);
 	}
 
