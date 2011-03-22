@@ -10,14 +10,7 @@ import org.anddev.andengine.extension.physics.box2d.PhysicsFactory;
 import org.anddev.andengine.opengl.texture.Texture;
 import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
-<<<<<<< HEAD
 
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.thoughtworks.mm.MarbleMazeActivity;
-=======
->>>>>>> a4b67926d3fa80eb3e549b58127e95ca278d34a3
 
 public class Pocket extends AnimatedSprite {
 

@@ -2,6 +2,15 @@ package com.thoughtworks.mm.level;
 
 import java.io.IOException;
 
+import android.os.Handler;
+import android.os.Message;
+import android.widget.Toast;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.thoughtworks.mm.MarbleMazeActivity;
+import com.thoughtworks.mm.entity.Ball;
+import com.thoughtworks.mm.entity.Pocket;
+import com.thoughtworks.mm.entity.Trap;
 import org.anddev.andengine.engine.handler.timer.ITimerCallback;
 import org.anddev.andengine.engine.handler.timer.TimerHandler;
 import org.anddev.andengine.entity.scene.Scene;
@@ -11,23 +20,11 @@ import org.anddev.andengine.extension.physics.box2d.PhysicsFactory;
 import org.anddev.andengine.level.LevelLoader;
 import org.anddev.andengine.level.LevelLoader.IEntityLoader;
 import org.anddev.andengine.level.util.constants.LevelConstants;
-import org.anddev.andengine.opengl.texture.Texture;
-import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import org.anddev.andengine.util.Debug;
 import org.anddev.andengine.util.SAXUtils;
 import org.xml.sax.Attributes;
-
-import android.os.Handler;
-import android.os.Message;
-import android.widget.Toast;
-
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.thoughtworks.mm.MarbleMazeActivity;
-import com.thoughtworks.mm.entity.Ball;
-import com.thoughtworks.mm.entity.Pocket;
 
 public class Level {
 
@@ -40,6 +37,9 @@ public class Level {
 
 	private TiledTextureRegion mBoxFaceTextureRegion;
 	final MarbleMazeActivity maze;
+
+    Pocket pocket;
+	Ball ball;
 
 	public Level(MarbleMazeActivity maze) {
 		this.maze = maze;
@@ -103,11 +103,7 @@ public class Level {
 					}
 				}));
 	}
-	
-	
-	Pocket pocket;
-	
-	Ball ball;
+
 	private Handler handler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -135,7 +131,9 @@ public class Level {
 			pocket = new Pocket(pX, pY,
 					maze);
 			face = pocket;
-		}else {
+		}else if (type.equals("trap")) {
+            face = new Trap(pX, pY, maze);
+        } else {
 			
 			ball = new Ball(pX, pY,
 					maze);
