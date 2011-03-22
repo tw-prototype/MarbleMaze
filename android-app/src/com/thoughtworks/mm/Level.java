@@ -30,19 +30,21 @@ public class Level {
 	static final String TAG_ENTITY_ATTRIBUTE_WIDTH = "width";
 	static final String TAG_ENTITY_ATTRIBUTE_HEIGHT = "height";
 	private static final String TAG_ENTITY_ATTRIBUTE_TYPE = "type";
-	
+
 	private TiledTextureRegion mBoxFaceTextureRegion;
 	private TiledTextureRegion mHoleTextureRegion;
-	
+
 	final MarbleMazeActivity maze;
+
 	public Level(MarbleMazeActivity maze) {
-		   this.maze = maze;
-	        Texture mTexture1 = new Texture(128, 128,
-	                TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.maze = maze;
+		Texture mTexture1 = new Texture(128, 128,
+				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.mBoxFaceTextureRegion = TextureRegionFactory.createTiledFromAsset(
 				maze.getmTexture(), maze, "box.png", 0, 0, 2, 1); // 64x32
-	    this.mHoleTextureRegion = TextureRegionFactory.createTiledFromAsset(mTexture1, maze, "hole.png", 32, 32, 1, 1); 
-	    maze.getEngine().getTextureManager().loadTexture(mTexture1);
+		this.mHoleTextureRegion = TextureRegionFactory.createTiledFromAsset(
+				mTexture1, maze, "hole.png", 32, 32, 1, 1);
+		maze.getEngine().getTextureManager().loadTexture(mTexture1);
 	}
 
 	void createMaze(final Scene scene) {
@@ -78,8 +80,9 @@ public class Level {
 						TAG_ENTITY_ATTRIBUTE_WIDTH);
 				final int height = SAXUtils.getIntAttributeOrThrow(pAttributes,
 						TAG_ENTITY_ATTRIBUTE_HEIGHT);
-				final String type = SAXUtils.getAttributeOrThrow(pAttributes, TAG_ENTITY_ATTRIBUTE_TYPE);
-				addObject(scene, x, y, width, height,type);
+				final String type = SAXUtils.getAttributeOrThrow(pAttributes,
+						TAG_ENTITY_ATTRIBUTE_TYPE);
+				addObject(scene, x, y, width, height, type);
 			}
 		});
 
@@ -94,15 +97,13 @@ public class Level {
 			final int pWidth, final int pHeight, String type) {
 		final AnimatedSprite face;
 
-		if(type.equals("box")) {
+		if (type.equals("box")) {
 			face = new AnimatedSprite(pX, pY, pWidth, pHeight,
 					this.mBoxFaceTextureRegion);
 		} else {
 			face = new AnimatedSprite(pX, pY, pWidth, pHeight,
 					this.mHoleTextureRegion);
 		}
-		
-
 
 		// face.animate(200);
 		final Body body;
@@ -111,8 +112,8 @@ public class Level {
 				BodyType.StaticBody, MarbleMazeActivity.WALL_FIXTURE_DEF);
 		// face.animate(200);
 
-		maze.getmPhysicsWorld().registerPhysicsConnector(new PhysicsConnector(face,
-				body, true, true));
+		maze.getmPhysicsWorld().registerPhysicsConnector(
+				new PhysicsConnector(face, body, true, true));
 
 		pScene.getLastChild().attachChild(face);
 	}
