@@ -31,11 +31,7 @@ public abstract class BaseExample extends BaseGameActivity {
     public static final short MASKBITS_HOLE = 0; // Missing: everything
     
 
-	static final String TAG_ENTITY = "entity";
-	static final String TAG_ENTITY_ATTRIBUTE_X = "x";
-	static final String TAG_ENTITY_ATTRIBUTE_Y = "y";
-	static final String TAG_ENTITY_ATTRIBUTE_WIDTH = "width";
-	static final String TAG_ENTITY_ATTRIBUTE_HEIGHT = "height";
+
 
     @Override
     public boolean onCreateOptionsMenu(final Menu pMenu) {
