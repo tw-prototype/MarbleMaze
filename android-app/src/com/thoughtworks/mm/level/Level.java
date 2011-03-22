@@ -1,16 +1,9 @@
 package com.thoughtworks.mm.level;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import android.os.Handler;
-import android.os.Message;
-import android.widget.Toast;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.thoughtworks.mm.MarbleMazeActivity;
-import com.thoughtworks.mm.entity.Ball;
-import com.thoughtworks.mm.entity.Pocket;
-import com.thoughtworks.mm.entity.Trap;
 import org.anddev.andengine.engine.handler.timer.ITimerCallback;
 import org.anddev.andengine.engine.handler.timer.TimerHandler;
 import org.anddev.andengine.entity.scene.Scene;
@@ -26,6 +19,17 @@ import org.anddev.andengine.util.Debug;
 import org.anddev.andengine.util.SAXUtils;
 import org.xml.sax.Attributes;
 
+import android.os.Handler;
+import android.os.Message;
+import android.widget.Toast;
+
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.thoughtworks.mm.MarbleMazeActivity;
+import com.thoughtworks.mm.entity.Ball;
+import com.thoughtworks.mm.entity.Pocket;
+import com.thoughtworks.mm.entity.Trap;
+
 public class Level {
 
 	static final String TAG_ENTITY = "entity";
@@ -40,12 +44,14 @@ public class Level {
 
     Pocket pocket;
 	Ball ball;
+	List<Trap> traps;
 
 	public Level(MarbleMazeActivity maze) {
 		this.maze = maze;
-
+		
 		this.mBoxFaceTextureRegion = TextureRegionFactory.createTiledFromAsset(
 				maze.getmTexture(), maze, "box.png", 0, 0, 2, 1); // 64x32
+		traps= new ArrayList<Trap>();
 	}
 
 	public void createMaze(final Scene scene) {
@@ -97,18 +103,38 @@ public class Level {
 		scene.registerUpdateHandler(new TimerHandler(0.5f, true,
 				new ITimerCallback() {
 					public void onTimePassed(final TimerHandler pTimerHandler) {
+						if(isBallTrapped(ball))
+						{
+							handler.sendEmptyMessage(1);
+						}
 						if (pocket.contains(ball.getX(), ball.getY())) {
 							handler.sendEmptyMessage(0);
 						}
 					}
+
+					
 				}));
+	}
+	private boolean isBallTrapped(Ball ball) {
+		for (Trap trap : traps) {
+			if(trap.contains(ball.getX(), ball.getY())){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private Handler handler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			Toast.makeText(maze, "You win!",
-					Toast.LENGTH_SHORT).show();
+			if(msg.what==0){
+				Toast.makeText(maze, "You win!",
+						Toast.LENGTH_SHORT).show();
+			}else{
+				Toast.makeText(maze, "You loose!",
+						Toast.LENGTH_SHORT).show();
+			}
+			
 		}
 	};
 
@@ -132,8 +158,10 @@ public class Level {
 					maze);
 			face = pocket;
 		}else if (type.equals("trap")) {
-            face = new Trap(pX, pY, maze);
-        } else {
+            Trap trap= new Trap(pX, pY, maze);
+			face =trap;
+            traps.add(trap);
+		} else {
 			
 			ball = new Ball(pX, pY,
 					maze);

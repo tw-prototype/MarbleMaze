@@ -24,7 +24,6 @@ public class Ball extends AnimatedSprite {
 		super(pX, pY, TextureRegionFactory.createTiledFromAsset(
 				marbleMazeActivity.getmTexture(), marbleMazeActivity,
 				"ball.png", 0, 32, 1, 1)); // 32x32);
-
 		Body body = PhysicsFactory.createCircleBody(marbleMazeActivity
 				.getmPhysicsWorld(), this, BodyType.DynamicBody,
 				Ball_FIXTURE_DEF);
@@ -33,5 +32,4 @@ public class Ball extends AnimatedSprite {
 				new PhysicsConnector(this, body, true, true));
 
 	}
-
 }
