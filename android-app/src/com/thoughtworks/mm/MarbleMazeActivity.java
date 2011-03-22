@@ -53,16 +53,15 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 	/* The categories. */
 	public static final short CATEGORYBIT_WALL = 1;
 	public static final short CATEGORYBIT_BOX = 2;
-	public static final short CATEGORYBIT_CIRCLE = 4;
-	public static final short CATEGORYBIT_HOLE = 8;
+
 
 	/* And what should collide with what. */
 	public static final short MASKBITS_WALL = CATEGORYBIT_WALL
-			+ CATEGORYBIT_BOX + CATEGORYBIT_CIRCLE;
+			+ CATEGORYBIT_BOX + Ball.CATEGORYBIT_BALL;
 	// CATEGORYBIT_CIRCLE
 	public static final short MASKBITS_CIRCLE = CATEGORYBIT_WALL
-			+ CATEGORYBIT_CIRCLE; // Missing: CATEGORYBIT_BOX
-	public static final short MASKBITS_HOLE = 0; // Missing: everything
+			+ Ball.CATEGORYBIT_BALL; // Missing: CATEGORYBIT_BOX
+
 
 	@Override
 	public boolean onCreateOptionsMenu(final Menu pMenu) {
@@ -97,14 +96,8 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 	public static final FixtureDef WALL_FIXTURE_DEF = PhysicsFactory
 			.createFixtureDef(0, 0.5f, 0.5f, false, CATEGORYBIT_WALL,
 					MASKBITS_WALL, (short) 0);
-	public static final FixtureDef CIRCLE_FIXTURE_DEF = PhysicsFactory
-			.createFixtureDef(1, 0.5f, 0.5f, false, CATEGORYBIT_CIRCLE,
-					MASKBITS_CIRCLE, (short) 0);
-	public static final FixtureDef HOLE_FIXTURE_DEF = PhysicsFactory
-			.createFixtureDef(0, 0.0f, Float.POSITIVE_INFINITY, false,
-					CATEGORYBIT_HOLE, MASKBITS_HOLE, (short) 0);
 
-	private TiledTextureRegion mCircleFaceTextureRegion;
+
 
 	private PhysicsWorld mPhysicsWorld;
 
@@ -118,16 +111,8 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 
 	private TiledTextureRegion mHoleTextureRegion;
 
-	private Ball ball;
-
 	private TextureRegion mParallaxLayerBack;
-	private Handler handler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			Toast.makeText(MarbleMazeActivity.this, "You win!",
-					Toast.LENGTH_SHORT).show();
-		}
-	};
+
 	private Texture mTexture;
 
 	public Texture getmTexture() {
@@ -146,15 +131,7 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 	public void onLoadResources() {
 		mTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		TextureRegionFactory.setAssetBasePath("gfx/");
-		Texture mTexture1 = new Texture(128, 128,
-				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-
-		this.mCircleFaceTextureRegion = TextureRegionFactory
-				.createTiledFromAsset(mTexture, this, "ball.png", 0, 32, 1, 1); // 32x32
-		this.mHoleTextureRegion = TextureRegionFactory.createTiledFromAsset(
-				mTexture1, this, "hole.png", 32, 32, 1, 1); // 64x32
 		this.mEngine.getTextureManager().loadTexture(mTexture);
-		this.mEngine.getTextureManager().loadTexture(mTexture1);
 		this.enableAccelerometerSensor(this);
 
 		/* TextureRegions. */
@@ -191,8 +168,6 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 		final Shape roof = new Rectangle(0, 0, CAMERA_WIDTH, 2);
 		final Shape left = new Rectangle(0, 0, 2, CAMERA_HEIGHT);
 		final Shape right = new Rectangle(CAMERA_WIDTH - 2, 0, 2, CAMERA_HEIGHT);
-		final Shape hole = new AnimatedSprite(2, 2, this.mHoleTextureRegion);
-
 		PhysicsFactory.createBoxBody(this.mPhysicsWorld, ground,
 				BodyType.StaticBody, WALL_FIXTURE_DEF);
 		PhysicsFactory.createBoxBody(this.mPhysicsWorld, roof,
@@ -201,24 +176,13 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 				BodyType.StaticBody, WALL_FIXTURE_DEF);
 		PhysicsFactory.createBoxBody(this.mPhysicsWorld, right,
 				BodyType.StaticBody, WALL_FIXTURE_DEF);
-		PhysicsFactory.createCircleBody(this.mPhysicsWorld, hole,
-				BodyType.StaticBody, HOLE_FIXTURE_DEF);
+
 
 		scene.getFirstChild().attachChild(ground);
 		scene.getFirstChild().attachChild(roof);
 		scene.getFirstChild().attachChild(left);
 		scene.getFirstChild().attachChild(right);
-		scene.getFirstChild().attachChild(hole);
 		scene.registerUpdateHandler(this.mPhysicsWorld);
-
-		scene.registerUpdateHandler(new TimerHandler(0.5f, true,
-				new ITimerCallback() {
-					public void onTimePassed(final TimerHandler pTimerHandler) {
-						if (hole.contains(ball.getX(), ball.getY())) {
-							handler.sendEmptyMessage(0);
-						}
-					}
-				}));
 
 		new Level(this).createMaze(scene);
 
@@ -226,7 +190,7 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 	}
 
 	public void onLoadComplete() {
-		this.addFace(360, 240);
+
 	}
 
 	public void onAccelerometerChanged(
@@ -235,20 +199,6 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 				pAccelerometerData.getX());
 		this.mPhysicsWorld.setGravity(gravity);
 		Vector2Pool.recycle(gravity);
-	}
-
-	private void addFace(final float pX, final float pY) {
-		final Scene scene = this.mEngine.getScene();
-		final Body body;
-
-		ball = new Ball(pX, pY, this.mCircleFaceTextureRegion);
-		body = PhysicsFactory.createCircleBody(this.mPhysicsWorld, ball,
-				BodyType.DynamicBody, CIRCLE_FIXTURE_DEF);
-		// face.animate(200);
-
-		scene.getLastChild().attachChild(ball);
-		this.mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(ball,
-				body, true, true));
 	}
 
 }

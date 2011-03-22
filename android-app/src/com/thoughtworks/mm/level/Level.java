@@ -2,6 +2,8 @@ package com.thoughtworks.mm.level;
 
 import java.io.IOException;
 
+import org.anddev.andengine.engine.handler.timer.ITimerCallback;
+import org.anddev.andengine.engine.handler.timer.TimerHandler;
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.sprite.AnimatedSprite;
 import org.anddev.andengine.extension.physics.box2d.PhysicsConnector;
@@ -17,11 +19,14 @@ import org.anddev.andengine.util.Debug;
 import org.anddev.andengine.util.SAXUtils;
 import org.xml.sax.Attributes;
 
+import android.os.Handler;
+import android.os.Message;
 import android.widget.Toast;
 
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.thoughtworks.mm.MarbleMazeActivity;
+import com.thoughtworks.mm.entity.Ball;
 import com.thoughtworks.mm.entity.Pocket;
 
 public class Level {
@@ -34,19 +39,13 @@ public class Level {
 	private static final String TAG_ENTITY_ATTRIBUTE_TYPE = "type";
 
 	private TiledTextureRegion mBoxFaceTextureRegion;
-	private TiledTextureRegion mHoleTextureRegion;
-
 	final MarbleMazeActivity maze;
 
 	public Level(MarbleMazeActivity maze) {
 		this.maze = maze;
-		Texture mTexture1 = new Texture(128, 128,
-				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+
 		this.mBoxFaceTextureRegion = TextureRegionFactory.createTiledFromAsset(
 				maze.getmTexture(), maze, "box.png", 0, 0, 2, 1); // 64x32
-		this.mHoleTextureRegion = TextureRegionFactory.createTiledFromAsset(
-				mTexture1, maze, "hole.png", 32, 32, 1, 1);
-		maze.getEngine().getTextureManager().loadTexture(mTexture1);
 	}
 
 	public void createMaze(final Scene scene) {
@@ -93,7 +92,29 @@ public class Level {
 		} catch (final IOException e) {
 			Debug.e(e);
 		}
+		
+
+		scene.registerUpdateHandler(new TimerHandler(0.5f, true,
+				new ITimerCallback() {
+					public void onTimePassed(final TimerHandler pTimerHandler) {
+						if (pocket.contains(ball.getX(), ball.getY())) {
+							handler.sendEmptyMessage(0);
+						}
+					}
+				}));
 	}
+	
+	
+	Pocket pocket;
+	
+	Ball ball;
+	private Handler handler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			Toast.makeText(maze, "You win!",
+					Toast.LENGTH_SHORT).show();
+		}
+	};
 
 	void addObject(final Scene pScene, final float pX, final float pY,
 			final int pWidth, final int pHeight, String type) {
@@ -102,9 +123,16 @@ public class Level {
 		if (type.equals("box")) {
 			face = new AnimatedSprite(pX, pY, pWidth, pHeight,
 					this.mBoxFaceTextureRegion);
-		} else {
-			face = new Pocket(pX, pY,
-					this.mHoleTextureRegion);
+		} else if (type.equals("pocket")){
+			pocket = new Pocket(pX, pY,
+					maze);
+			face = pocket;
+		}else {
+			
+			ball = new Ball(pX, pY,
+					maze);
+			face =  ball;
+		
 		}
 
 		// face.animate(200);
