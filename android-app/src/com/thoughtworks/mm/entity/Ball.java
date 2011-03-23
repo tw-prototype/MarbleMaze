@@ -3,6 +3,7 @@ package com.thoughtworks.mm.entity;
 import org.anddev.andengine.entity.sprite.AnimatedSprite;
 import org.anddev.andengine.extension.physics.box2d.PhysicsConnector;
 import org.anddev.andengine.extension.physics.box2d.PhysicsFactory;
+import org.anddev.andengine.extension.physics.box2d.PhysicsWorld;
 import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
 
 import com.badlogic.gdx.physics.box2d.Body;
@@ -25,17 +26,15 @@ public class Ball extends AnimatedSprite {
 		super(pX, pY, TextureRegionFactory.createTiledFromAsset(
 				marbleMazeActivity.getmTexture(), marbleMazeActivity,
 				"ball.png", 0, 32, 1, 1)); // 32x32);
-		createBodyAndRegisterWithPhysicsWorld(marbleMazeActivity);
+		createBodyAndRegisterWithPhysicsWorld(marbleMazeActivity.getmPhysicsWorld());
 
 	}
 
-	private void createBodyAndRegisterWithPhysicsWorld(
-			MarbleMazeActivity marbleMazeActivity) {
-		body = PhysicsFactory.createCircleBody(marbleMazeActivity
-				.getmPhysicsWorld(), this, BodyType.DynamicBody,
+	private void createBodyAndRegisterWithPhysicsWorld(PhysicsWorld physicsWorld) {
+		body = PhysicsFactory.createCircleBody(physicsWorld, this, BodyType.DynamicBody,
 				Ball_FIXTURE_DEF);
 		PhysicsConnector ballPhysicsConnector = new PhysicsConnector(this, body, true, true);
-		marbleMazeActivity.getmPhysicsWorld().registerPhysicsConnector(
+		physicsWorld.registerPhysicsConnector(
 				ballPhysicsConnector);
 	}
 
