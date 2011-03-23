@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.thoughtworks.mm.entity.Ball;
+import com.thoughtworks.mm.entity.SwingingBall;
 import com.thoughtworks.mm.level.Level;
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.Camera;
@@ -36,8 +37,8 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 
     private static final int MENU_TRACE = Menu.FIRST;
 
-    static final int CAMERA_WIDTH = 640;
-    static final int CAMERA_HEIGHT = 480;
+    public static final int CAMERA_WIDTH = 640;
+    public static final int CAMERA_HEIGHT = 480;
 
     /* The categories. */
     public static final short CATEGORYBIT_WALL = 1;
@@ -164,6 +165,7 @@ public class MarbleMazeActivity extends BaseGameActivity implements
         scene.registerUpdateHandler(this.mPhysicsWorld);
 
         new Level(this).createMaze(scene);
+        new SwingingBall(200,200,this).initJoints(scene);
 
         return scene;
     }
