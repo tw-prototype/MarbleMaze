@@ -28,7 +28,7 @@ public class MarbleMazeTest {
 	
 	@Test
 	public void shouldRegisterListenersWhenProcessIsResumed() {
-		MarbleMaze marbleMaze = new MarbleMaze(sensorManager);
+		MarbleMazeSensor marbleMaze = new MarbleMazeSensor(sensorManager);
 		marbleMaze.onResume();
 		Mockito.verify(sensorManager, Mockito.times(2)).registerListener(Mockito.eq(marbleMaze), Mockito.any(Sensor.class), Mockito.anyInt());
 	}
