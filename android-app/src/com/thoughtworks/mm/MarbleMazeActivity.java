@@ -111,17 +111,12 @@ public class MarbleMazeActivity extends BaseGameActivity implements
     public void onLoadResources() {
         mTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
         TextureRegionFactory.setAssetBasePath("gfx/");
-        this.mEngine.getTextureManager().loadTexture(mTexture);
+
+        Texture mBackgroundTexture = new Texture(1024, 1024, TextureOptions.DEFAULT);
+        this.mParallaxLayerBack = TextureRegionFactory.createFromAsset( mBackgroundTexture, this, "background.png", 0, 188);
+        this.mEngine.getTextureManager().loadTextures(mTexture, mBackgroundTexture);
+
         this.enableAccelerometerSensor(this);
-
-        /* TextureRegions. */
-
-        Texture mBackgroundTexture = new Texture(1024, 1024,
-            TextureOptions.DEFAULT);
-        this.mParallaxLayerBack = TextureRegionFactory.createFromAsset(
-            mBackgroundTexture, this, "background.png", 0, 188);
-        this.mEngine.getTextureManager().loadTextures(mTexture,
-            mBackgroundTexture);
 
     }
 

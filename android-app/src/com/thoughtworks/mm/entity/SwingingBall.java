@@ -19,19 +19,19 @@ import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 
 public class SwingingBall {
     private TiledTextureRegion boxTextureRegion;
-    private Texture mTexture;
     private MarbleMazeActivity marbleMazeActivity;
     private TiledTextureRegion swingingBallTextureRegion;
 
 
     public SwingingBall(float pX, float pY, MarbleMazeActivity marbleMazeActivity) {
         this.marbleMazeActivity = marbleMazeActivity;
-        this.mTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+        Texture boxTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+        Texture ballTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+        marbleMazeActivity.getEngine().getTextureManager().loadTexture(boxTexture);
+        marbleMazeActivity.getEngine().getTextureManager().loadTexture(ballTexture);
         TextureRegionFactory.setAssetBasePath("gfx/");
-        this.boxTextureRegion = TextureRegionFactory.createTiledFromAsset(marbleMazeActivity.getmTexture(), marbleMazeActivity,
-            "box.png", 0, 32, 1, 1);
-        this.swingingBallTextureRegion = TextureRegionFactory.createTiledFromAsset(marbleMazeActivity.getmTexture(), marbleMazeActivity,
-            "swingingBall.png", 0, 32, 1, 1);
+        this.boxTextureRegion = TextureRegionFactory.createTiledFromAsset(boxTexture, marbleMazeActivity, "box.png", 0, 32, 1, 1);
+        this.swingingBallTextureRegion = TextureRegionFactory.createTiledFromAsset(ballTexture, marbleMazeActivity, "swingingBall.png", 0, 32, 1, 1);
 
     }
 
@@ -74,8 +74,8 @@ public class SwingingBall {
             final RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
             revoluteJointDef.initialize(anchorBody, movingBody, anchorBody.getWorldCenter());
             revoluteJointDef.enableMotor = true;
-            revoluteJointDef.motorSpeed = 10;
-            revoluteJointDef.maxMotorTorque = 200;
+            revoluteJointDef.motorSpeed = 20;
+            revoluteJointDef.maxMotorTorque = 150;
 
             marbleMazeActivity.getmPhysicsWorld().createJoint(revoluteJointDef);
         }
