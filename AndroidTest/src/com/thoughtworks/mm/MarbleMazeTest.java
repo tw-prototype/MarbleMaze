@@ -1,7 +1,5 @@
 package com.thoughtworks.mm;
 
-import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,8 +12,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-@PrepareForTest({ Activity.class })
-@RunWith(PowerMockRunner.class)
+/*@PrepareForTest({ Activity.class })
+*/@RunWith(PowerMockRunner.class)
 public class MarbleMazeTest {
 	
 	@Mock
