@@ -131,8 +131,11 @@ public class Level {
 				Toast.makeText(maze, "You win!",
 						Toast.LENGTH_SHORT).show();
 			}else{
+				
 				Toast.makeText(maze, "You loose!",
-						Toast.LENGTH_SHORT).show();
+					Toast.LENGTH_SHORT).show();
+				maze.resetGame();
+				
 			}
 			
 		}

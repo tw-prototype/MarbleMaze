@@ -11,6 +11,7 @@ import com.thoughtworks.mm.entity.SwingingBall;
 import com.thoughtworks.mm.level.Level;
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.Camera;
+import org.anddev.andengine.engine.handler.IUpdateHandler;
 import org.anddev.andengine.engine.options.EngineOptions;
 import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
@@ -90,6 +91,10 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 
     private PhysicsWorld mPhysicsWorld;
 
+	private IUpdateHandler pUpdateHandler;
+
+	private Scene scene;
+
     public PhysicsWorld getmPhysicsWorld() {
         return mPhysicsWorld;
     }
@@ -121,9 +126,10 @@ public class MarbleMazeActivity extends BaseGameActivity implements
     }
 
     public Scene onLoadScene() {
-        this.mEngine.registerUpdateHandler(new FPSLogger());
+    	pUpdateHandler=new FPSLogger();
+    	this.mEngine.registerUpdateHandler(pUpdateHandler);
 
-        final Scene scene = new Scene(2);
+        if(scene==null) scene = new Scene(2);
         // scene.setBackground(new ColorBackground(0, 0, 0));
 
         final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(
@@ -153,7 +159,8 @@ public class MarbleMazeActivity extends BaseGameActivity implements
             BodyType.StaticBody, WALL_FIXTURE_DEF);
 
 
-        scene.getFirstChild().attachChild(ground);
+
+
         scene.getFirstChild().attachChild(roof);
         scene.getFirstChild().attachChild(left);
         scene.getFirstChild().attachChild(right);
@@ -168,7 +175,27 @@ public class MarbleMazeActivity extends BaseGameActivity implements
     public void onLoadComplete() {
 
     }
-
+    public void resetGame(){
+    	
+    	mEngine.runOnUpdateThread(new Runnable() {
+    	                        @Override
+    	                        public void run() {
+    	                        	scene.getFirstChild().detachChildren();
+    	                    		scene.getLastChild().detachChildren();
+    	                            scene.reset();
+    	                        }
+    	                });
+   	
+   		scene.clearUpdateHandlers();
+    	this.mEngine.clearUpdateHandlers();
+    	this.mPhysicsWorld.clearPhysicsConnectors();
+    	mPhysicsWorld.reset();
+    	mPhysicsWorld.dispose();
+    	scene=null;	
+    	onLoadScene();
+        this.mEngine.setScene(scene);
+    }
+    
     public void onAccelerometerChanged(
         final AccelerometerData pAccelerometerData) {
         final Vector2 gravity = Vector2Pool.obtain(pAccelerometerData.getY(),
