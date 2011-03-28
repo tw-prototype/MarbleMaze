@@ -1,12 +1,7 @@
 package com.thoughtworks.mm.entity;
 
-import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.sprite.AnimatedSprite;
-import org.anddev.andengine.extension.physics.box2d.PhysicsConnector;
-import org.anddev.andengine.extension.physics.box2d.PhysicsFactory;
 
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.thoughtworks.mm.MarbleMazeActivity;
 import com.thoughtworks.mm.level.GameDecisionEngine;
 

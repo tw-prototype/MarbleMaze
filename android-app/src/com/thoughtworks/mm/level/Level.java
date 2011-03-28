@@ -2,6 +2,7 @@ package com.thoughtworks.mm.level;
 
 import java.io.IOException;
 
+import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.level.LevelLoader;
 import org.anddev.andengine.level.LevelLoader.IEntityLoader;
 import org.anddev.andengine.level.util.constants.LevelConstants;
@@ -12,6 +13,7 @@ import org.xml.sax.Attributes;
 import android.widget.Toast;
 
 import com.thoughtworks.mm.MarbleMazeActivity;
+import com.thoughtworks.mm.entity.Ball;
 import com.thoughtworks.mm.entity.EntityBuilder;
 
 public class Level {
@@ -80,6 +82,16 @@ public class Level {
 
 		gameDecisionEngine.registerActivity(marbleMazeActivity);
 
+	}
+
+	public void reset(Ball ball) {
+		ball.remove(marbleMazeActivity);
+		ball.reset();
+        ball.setInitialPosition();
+        final Scene scene = marbleMazeActivity.getEngine().getScene();
+        ball.createBodyAndRegisterWithPhysicsWorld(marbleMazeActivity.getmPhysicsWorld());
+        scene.getLastChild().attachChild(ball);
+		
 	}
 
 }

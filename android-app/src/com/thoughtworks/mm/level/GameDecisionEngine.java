@@ -58,8 +58,8 @@ public class GameDecisionEngine {
 
 					Toast.makeText(marbleMazeActivity, "You loose!",
 							Toast.LENGTH_SHORT).show();
-					marbleMazeActivity.resetGame();
-
+					marbleMazeActivity.resetLevel(ball);
+					
 				}
 
 			}
