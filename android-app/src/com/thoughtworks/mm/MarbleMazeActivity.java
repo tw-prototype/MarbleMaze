@@ -167,7 +167,7 @@ public class MarbleMazeActivity extends BaseGameActivity implements
         scene.registerUpdateHandler(this.mPhysicsWorld);
 
         new Level(this).createMaze(scene);
-        new SwingingBall(200,200,this).initJoints(scene);
+        new SwingingBall(503, 114, this).initJoints(scene);
 
         return scene;
     }
@@ -178,7 +178,6 @@ public class MarbleMazeActivity extends BaseGameActivity implements
     public void resetGame(){
     	
     	mEngine.runOnUpdateThread(new Runnable() {
-    	                        @Override
     	                        public void run() {
     	                        	scene.getFirstChild().detachChildren();
     	                    		scene.getLastChild().detachChildren();

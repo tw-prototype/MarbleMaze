@@ -21,9 +21,13 @@ public class SwingingBall {
     private TiledTextureRegion boxTextureRegion;
     private MarbleMazeActivity marbleMazeActivity;
     private TiledTextureRegion swingingBallTextureRegion;
+    private float anchorX = 503;
+    private float anchorY = 114;
 
 
-    public SwingingBall(float pX, float pY, MarbleMazeActivity marbleMazeActivity) {
+    public SwingingBall(float anchorX, float anchorY, MarbleMazeActivity marbleMazeActivity) {
+        this.anchorX = anchorX;
+        this.anchorY = anchorY;
         this.marbleMazeActivity = marbleMazeActivity;
         Texture boxTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
         Texture ballTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -37,47 +41,42 @@ public class SwingingBall {
 
 
     public void initJoints(final Scene pScene) {
-        final int centerX = MarbleMazeActivity.CAMERA_WIDTH / 2;
 
         final int spriteWidth = this.boxTextureRegion.getTileWidth();
         final int spriteHeight = this.boxTextureRegion.getTileHeight();
 
         final FixtureDef objectFixtureDef = PhysicsFactory.createFixtureDef(10, 0.2f, 0.5f);
 
-        for (int i = 0; i < 1; i++) {
-            final float anchorFaceX = centerX - spriteWidth * 0.5f + 200;
-            final float anchorFaceY =   (MarbleMazeActivity.CAMERA_HEIGHT / 3 - spriteHeight * 0.5f)-30 ;
-            System.out.println("anchorFaceX: "+anchorFaceX+",anchorFaceY: "+anchorFaceY);
 
-            final AnimatedSprite anchorFace = new AnimatedSprite(anchorFaceX, anchorFaceY, this.boxTextureRegion);
-            final Body anchorBody = PhysicsFactory.createBoxBody(marbleMazeActivity.getmPhysicsWorld(), anchorFace, BodyDef.BodyType.StaticBody, objectFixtureDef);
+        final AnimatedSprite anchorFace = new AnimatedSprite(anchorX, anchorY, this.boxTextureRegion);
+        final Body anchorBody = PhysicsFactory.createBoxBody(marbleMazeActivity.getmPhysicsWorld(), anchorFace, BodyDef.BodyType.StaticBody, objectFixtureDef);
 
-            final AnimatedSprite movingFace = new AnimatedSprite(anchorFaceX, anchorFaceY + 90, this.swingingBallTextureRegion);
-            final Body movingBody = PhysicsFactory.createCircleBody(marbleMazeActivity.getmPhysicsWorld(), movingFace, BodyDef.BodyType.DynamicBody, objectFixtureDef);
+        final AnimatedSprite movingFace = new AnimatedSprite(anchorX, anchorY + 90, this.swingingBallTextureRegion);
+        final Body movingBody = PhysicsFactory.createCircleBody(marbleMazeActivity.getmPhysicsWorld(), movingFace, BodyDef.BodyType.DynamicBody, objectFixtureDef);
 
-            pScene.getLastChild().attachChild(anchorFace);
-            pScene.getLastChild().attachChild(movingFace);
+        pScene.getLastChild().attachChild(anchorFace);
+        pScene.getLastChild().attachChild(movingFace);
 
-            final Line connectionLine = new Line(anchorFaceX + spriteWidth / 2, anchorFaceY + spriteHeight / 2, anchorFaceX + spriteWidth / 2, anchorFaceY + spriteHeight / 2);
-            pScene.getFirstChild().attachChild(connectionLine);
-            marbleMazeActivity.getmPhysicsWorld().registerPhysicsConnector(new PhysicsConnector(anchorFace, anchorBody, true, true) {
-                @Override
-                public void onUpdate(final float pSecondsElapsed) {
-                    super.onUpdate(pSecondsElapsed);
-                    final Vector2 movingBodyWorldCenter = movingBody.getWorldCenter();
-                    connectionLine.setPosition(connectionLine.getX1(), connectionLine.getY1(), movingBodyWorldCenter.x * PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT, movingBodyWorldCenter.y * PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT);
-                }
-            });
-            marbleMazeActivity.getmPhysicsWorld().registerPhysicsConnector(new PhysicsConnector(movingFace, movingBody, true, true));
+        final Line connectionLine = new Line(anchorX + spriteWidth / 2, anchorY + spriteHeight / 2, anchorX + spriteWidth / 2, anchorY + spriteHeight / 2);
+        pScene.getFirstChild().attachChild(connectionLine);
+        marbleMazeActivity.getmPhysicsWorld().registerPhysicsConnector(new PhysicsConnector(anchorFace, anchorBody, true, true) {
+            @Override
+            public void onUpdate(final float pSecondsElapsed) {
+                super.onUpdate(pSecondsElapsed);
+                final Vector2 movingBodyWorldCenter = movingBody.getWorldCenter();
+                connectionLine.setPosition(connectionLine.getX1(), connectionLine.getY1(), movingBodyWorldCenter.x * PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT, movingBodyWorldCenter.y * PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT);
+            }
+        });
+        marbleMazeActivity.getmPhysicsWorld().registerPhysicsConnector(new PhysicsConnector(movingFace, movingBody, true, true));
 
 
-            final RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
-            revoluteJointDef.initialize(anchorBody, movingBody, anchorBody.getWorldCenter());
-            revoluteJointDef.enableMotor = true;
-            revoluteJointDef.motorSpeed = 20;
-            revoluteJointDef.maxMotorTorque = 150;
+        final RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
+        revoluteJointDef.initialize(anchorBody, movingBody, anchorBody.getWorldCenter());
+        revoluteJointDef.enableMotor = true;
+        revoluteJointDef.motorSpeed = 20;
+        revoluteJointDef.maxMotorTorque = 150;
 
-            marbleMazeActivity.getmPhysicsWorld().createJoint(revoluteJointDef);
-        }
+        marbleMazeActivity.getmPhysicsWorld().createJoint(revoluteJointDef);
+
     }
 }
