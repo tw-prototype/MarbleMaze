@@ -94,7 +94,11 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 
 	private Scene scene;
 
-    public PhysicsWorld getmPhysicsWorld() {
+    public Scene getScene() {
+		return scene;
+	}
+
+	public PhysicsWorld getmPhysicsWorld() {
         return mPhysicsWorld;
     }
 
