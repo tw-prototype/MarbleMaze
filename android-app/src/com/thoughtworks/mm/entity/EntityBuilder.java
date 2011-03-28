@@ -29,22 +29,21 @@ public class EntityBuilder {
 		this.gameDecisionEngine = gameDecisionEngine;
 	}
 
-	public void setInitialCoordinates(float x, float y) {
+	public EntityBuilder setInitialCoordinates(float x, float y) {
 		x0 = x;
 		y0 = y;
+		return this;
 	}
 
-	public void setDimensions(float width, float height) {
+	public EntityBuilder setDimensions(float width, float height) {
 		this.width = width;
 		this.height = height;
+		return this;
 	}
 
-	public void setMarbleMazeActivity(MarbleMazeActivity marbleMazeActivity) {
-		this.marbleMazeActivity = marbleMazeActivity;
-	}
-
-	public void type(String type) {
+	public EntityBuilder type(String type) {
 		this.type = type;
+		return this;
 	}
 
 	public void build() {

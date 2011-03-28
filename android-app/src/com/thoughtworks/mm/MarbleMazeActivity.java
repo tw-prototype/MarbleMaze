@@ -159,7 +159,7 @@ public class MarbleMazeActivity extends BaseGameActivity implements
         scene.getFirstChild().attachChild(right);
         scene.registerUpdateHandler(this.mPhysicsWorld);
 
-        new Level(this).createMaze(scene);
+        new Level(this).loadLevel(1);
 //        new SwingingBall(503, 114, this).initJoints(scene);
 
         return scene;
