@@ -82,14 +82,4 @@ public class Level {
 
 	}
 
-	public void reset(Ball ball) {
-		ball.remove(marbleMazeActivity);
-		ball.reset();
-        ball.setInitialPosition();
-        final Scene scene = marbleMazeActivity.getEngine().getScene();
-        ball.createBodyAndRegisterWithPhysicsWorld(marbleMazeActivity.getmPhysicsWorld());
-        scene.getLastChild().attachChild(ball);
-		
-	}
-
 }

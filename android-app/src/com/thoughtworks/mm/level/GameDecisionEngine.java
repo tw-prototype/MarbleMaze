@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.anddev.andengine.engine.handler.timer.ITimerCallback;
 import org.anddev.andengine.engine.handler.timer.TimerHandler;
+import org.anddev.andengine.entity.scene.Scene;
 
 import android.os.Handler;
 import android.os.Message;
@@ -58,11 +59,20 @@ public class GameDecisionEngine {
 
 					Toast.makeText(marbleMazeActivity, "You loose!",
 							Toast.LENGTH_SHORT).show();
-					marbleMazeActivity.resetLevel(ball);
-					
+					ball.remove(marbleMazeActivity);
+					ball.reset();
+					ball.setInitialPosition();
+					final Scene scene = marbleMazeActivity.getEngine()
+							.getScene();
+					ball
+							.createBodyAndRegisterWithPhysicsWorld(marbleMazeActivity
+									.getmPhysicsWorld());
+					scene.getLastChild().attachChild(ball);
+
 				}
 
 			}
+
 		};
 
 		marbleMazeActivity.getScene().registerUpdateHandler(

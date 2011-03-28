@@ -35,156 +35,153 @@ import com.thoughtworks.mm.entity.Ball;
 import com.thoughtworks.mm.level.Level;
 
 public class MarbleMazeActivity extends BaseGameActivity implements
-    IAccelerometerListener {
+		IAccelerometerListener {
 
-    private static final int MENU_TRACE = Menu.FIRST;
+	private static final int MENU_TRACE = Menu.FIRST;
 
-    public static final int CAMERA_WIDTH = 640;
-    public static final int CAMERA_HEIGHT = 480;
+	public static final int CAMERA_WIDTH = 640;
+	public static final int CAMERA_HEIGHT = 480;
 
-    /* The categories. */
-    public static final short CATEGORYBIT_WALL = 1;
+	/* The categories. */
+	public static final short CATEGORYBIT_WALL = 1;
 
+	/* And what should collide with what. */
+	public static final short MASKBITS_WALL = CATEGORYBIT_WALL
+			+ Ball.CATEGORY_BIT_BALL;
 
-    /* And what should collide with what. */
-    public static final short MASKBITS_WALL = CATEGORYBIT_WALL
-        + Ball.CATEGORY_BIT_BALL;
+	private TextureRegion mParallaxLayerBack;
 
-    private TextureRegion mParallaxLayerBack;
+	private Texture mTexture;
 
-    private Texture mTexture;
+	@Override
+	public boolean onCreateOptionsMenu(final Menu pMenu) {
+		pMenu.add(Menu.NONE, MENU_TRACE, Menu.NONE, "Start Method Tracing");
+		return super.onCreateOptionsMenu(pMenu);
+	}
 
+	@Override
+	public boolean onPrepareOptionsMenu(final Menu pMenu) {
+		pMenu.findItem(MENU_TRACE).setTitle(
+				this.mEngine.isMethodTracing() ? "Stop Method Tracing"
+						: "Start Method Tracing");
+		return super.onPrepareOptionsMenu(pMenu);
+	}
 
-    @Override
-    public boolean onCreateOptionsMenu(final Menu pMenu) {
-        pMenu.add(Menu.NONE, MENU_TRACE, Menu.NONE, "Start Method Tracing");
-        return super.onCreateOptionsMenu(pMenu);
-    }
+	@Override
+	public boolean onMenuItemSelected(final int pFeatureId, final MenuItem pItem) {
+		switch (pItem.getItemId()) {
+		case MENU_TRACE:
+			if (this.mEngine.isMethodTracing()) {
+				this.mEngine.stopMethodTracing();
+			} else {
+				this.mEngine.startMethodTracing("AndEngine_"
+						+ System.currentTimeMillis() + ".trace");
+			}
+			return true;
+		default:
+			return super.onMenuItemSelected(pFeatureId, pItem);
+		}
+	}
 
-    @Override
-    public boolean onPrepareOptionsMenu(final Menu pMenu) {
-        pMenu.findItem(MENU_TRACE).setTitle(
-            this.mEngine.isMethodTracing() ? "Stop Method Tracing"
-                : "Start Method Tracing");
-        return super.onPrepareOptionsMenu(pMenu);
-    }
+	public static final FixtureDef WALL_FIXTURE_DEF = PhysicsFactory
+			.createFixtureDef(0, 0.5f, 0.5f, false, CATEGORYBIT_WALL,
+					MASKBITS_WALL, (short) 0);
 
-    @Override
-    public boolean onMenuItemSelected(final int pFeatureId, final MenuItem pItem) {
-        switch (pItem.getItemId()) {
-        case MENU_TRACE:
-            if (this.mEngine.isMethodTracing()) {
-                this.mEngine.stopMethodTracing();
-            } else {
-                this.mEngine.startMethodTracing("AndEngine_"
-                    + System.currentTimeMillis() + ".trace");
-            }
-            return true;
-        default:
-            return super.onMenuItemSelected(pFeatureId, pItem);
-        }
-    }
-
-    public static final FixtureDef WALL_FIXTURE_DEF = PhysicsFactory
-        .createFixtureDef(0, 0.5f, 0.5f, false, CATEGORYBIT_WALL,
-            MASKBITS_WALL, (short) 0);
-
-
-    private PhysicsWorld mPhysicsWorld;
+	private PhysicsWorld mPhysicsWorld;
 
 	private IUpdateHandler pUpdateHandler;
 
 	private Scene scene;
 
-	private Level level;
-
-    public Scene getScene() {
+	public Scene getScene() {
 		return scene;
 	}
 
 	public PhysicsWorld getmPhysicsWorld() {
-        return mPhysicsWorld;
-    }
+		return mPhysicsWorld;
+	}
 
+	public Texture getTexture() {
+		return mTexture;
+	}
 
-    public Texture getTexture() {
-        return mTexture;
-    }
+	public Engine onLoadEngine() {
+		final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+		final EngineOptions engineOptions = new EngineOptions(true,
+				ScreenOrientation.LANDSCAPE, new RatioResolutionPolicy(
+						CAMERA_WIDTH, CAMERA_HEIGHT), camera);
+		engineOptions.getTouchOptions().setRunOnUpdateThread(true);
+		return new Engine(engineOptions);
+	}
 
-    public Engine onLoadEngine() {
-        final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-        final EngineOptions engineOptions = new EngineOptions(true,
-            ScreenOrientation.LANDSCAPE, new RatioResolutionPolicy(
-                CAMERA_WIDTH, CAMERA_HEIGHT), camera);
-        engineOptions.getTouchOptions().setRunOnUpdateThread(true);
-        return new Engine(engineOptions);
-    }
+	public void onLoadResources() {
+		mTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		TextureRegionFactory.setAssetBasePath("gfx/");
 
-    public void onLoadResources() {
-        mTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-        TextureRegionFactory.setAssetBasePath("gfx/");
+		Texture mBackgroundTexture = new Texture(1024, 1024,
+				TextureOptions.DEFAULT);
+		this.mParallaxLayerBack = TextureRegionFactory.createFromAsset(
+				mBackgroundTexture, this, "background.png", 0, 188);
+		this.mEngine.getTextureManager().loadTextures(mTexture,
+				mBackgroundTexture);
 
-        Texture mBackgroundTexture = new Texture(1024, 1024, TextureOptions.DEFAULT);
-        this.mParallaxLayerBack = TextureRegionFactory.createFromAsset( mBackgroundTexture, this, "background.png", 0, 188);
-        this.mEngine.getTextureManager().loadTextures(mTexture, mBackgroundTexture);
+		this.enableAccelerometerSensor(this);
 
-        this.enableAccelerometerSensor(this);
+	}
 
-    }
+	public Scene onLoadScene() {
+		pUpdateHandler = new FPSLogger();
+		this.mEngine.registerUpdateHandler(pUpdateHandler);
 
-    public Scene onLoadScene() {
-    	pUpdateHandler=new FPSLogger();
-    	this.mEngine.registerUpdateHandler(pUpdateHandler);
+		if (scene == null)
+			scene = new Scene(2);
+		// scene.setBackground(new ColorBackground(0, 0, 0));
 
-        if(scene==null) scene = new Scene(2);
-        // scene.setBackground(new ColorBackground(0, 0, 0));
+		final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(
+				0, 0, 0, 5);
+		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(0.0f,
+				new Sprite(0, CAMERA_HEIGHT
+						- this.mParallaxLayerBack.getHeight(),
+						this.mParallaxLayerBack)));
+		scene.setBackground(autoParallaxBackground);
+		// scene.setOnSceneTouchListener(this);
 
-        final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground( 0, 0, 0, 5);
-        autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(0.0f,
-            new Sprite(0, CAMERA_HEIGHT
-                - this.mParallaxLayerBack.getHeight(),
-                this.mParallaxLayerBack)));
-        scene.setBackground(autoParallaxBackground);
-        // scene.setOnSceneTouchListener(this);
+		this.mPhysicsWorld = new PhysicsWorld(new Vector2(0,
+				SensorManager.GRAVITY_DEATH_STAR_I), false);
 
-        this.mPhysicsWorld = new PhysicsWorld(new Vector2(0, SensorManager.GRAVITY_DEATH_STAR_I), false);
+		final Shape ground = new Rectangle(0, CAMERA_HEIGHT - 2, CAMERA_WIDTH,
+				2);
+		final Shape roof = new Rectangle(0, 0, CAMERA_WIDTH, 2);
+		final Shape left = new Rectangle(0, 0, 2, CAMERA_HEIGHT);
+		final Shape right = new Rectangle(CAMERA_WIDTH - 2, 0, 2, CAMERA_HEIGHT);
+		PhysicsFactory.createBoxBody(this.mPhysicsWorld, ground,
+				BodyType.StaticBody, WALL_FIXTURE_DEF);
+		PhysicsFactory.createBoxBody(this.mPhysicsWorld, roof,
+				BodyType.StaticBody, WALL_FIXTURE_DEF);
+		PhysicsFactory.createBoxBody(this.mPhysicsWorld, left,
+				BodyType.StaticBody, WALL_FIXTURE_DEF);
+		PhysicsFactory.createBoxBody(this.mPhysicsWorld, right,
+				BodyType.StaticBody, WALL_FIXTURE_DEF);
 
-        final Shape ground = new Rectangle(0, CAMERA_HEIGHT - 2, CAMERA_WIDTH, 2);
-        final Shape roof = new Rectangle(0, 0, CAMERA_WIDTH, 2);
-        final Shape left = new Rectangle(0, 0, 2, CAMERA_HEIGHT);
-        final Shape right = new Rectangle(CAMERA_WIDTH - 2, 0, 2, CAMERA_HEIGHT);
-        PhysicsFactory.createBoxBody(this.mPhysicsWorld, ground, BodyType.StaticBody, WALL_FIXTURE_DEF);
-        PhysicsFactory.createBoxBody(this.mPhysicsWorld, roof, BodyType.StaticBody, WALL_FIXTURE_DEF);
-        PhysicsFactory.createBoxBody(this.mPhysicsWorld, left, BodyType.StaticBody, WALL_FIXTURE_DEF);
-        PhysicsFactory.createBoxBody(this.mPhysicsWorld, right, BodyType.StaticBody, WALL_FIXTURE_DEF);
+		scene.getFirstChild().attachChild(roof);
+		scene.getFirstChild().attachChild(left);
+		scene.getFirstChild().attachChild(right);
+		scene.registerUpdateHandler(this.mPhysicsWorld);
 
-        scene.getFirstChild().attachChild(roof);
-        scene.getFirstChild().attachChild(left);
-        scene.getFirstChild().attachChild(right);
-        scene.registerUpdateHandler(this.mPhysicsWorld);
+		new Level(this).loadLevel(1);
+		return scene;
+	}
 
-        level= new Level(this);
-        level.loadLevel(1);
-//        new SwingingBall(503, 114, this).initJoints(scene);
+	public void onLoadComplete() {
 
-        return scene;
-    }
+	}
 
-    public void onLoadComplete() {
-
-    }
-    
-    
-    public void onAccelerometerChanged(
-        final AccelerometerData pAccelerometerData) {
-        final Vector2 gravity = Vector2Pool.obtain(pAccelerometerData.getY(),
-            pAccelerometerData.getX());
-        this.mPhysicsWorld.setGravity(gravity);
-        Vector2Pool.recycle(gravity);
-    }
-
-	public void resetLevel(Ball ball) {
-		level.reset(ball);
+	public void onAccelerometerChanged(
+			final AccelerometerData pAccelerometerData) {
+		final Vector2 gravity = Vector2Pool.obtain(pAccelerometerData.getY(),
+				pAccelerometerData.getX());
+		this.mPhysicsWorld.setGravity(gravity);
+		Vector2Pool.recycle(gravity);
 	}
 
 }
