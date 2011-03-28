@@ -21,8 +21,8 @@ public class SwingingBall {
     private TiledTextureRegion boxTextureRegion;
     private MarbleMazeActivity marbleMazeActivity;
     private TiledTextureRegion swingingBallTextureRegion;
-    private float anchorX = 503;
-    private float anchorY = 114;
+    private float anchorX;
+    private float anchorY;
 
 
     public SwingingBall(float anchorX, float anchorY, MarbleMazeActivity marbleMazeActivity) {
@@ -48,26 +48,28 @@ public class SwingingBall {
         final FixtureDef objectFixtureDef = PhysicsFactory.createFixtureDef(10, 0.2f, 0.5f);
 
 
-        final AnimatedSprite anchorFace = new AnimatedSprite(anchorX, anchorY, this.boxTextureRegion);
-        final Body anchorBody = PhysicsFactory.createBoxBody(marbleMazeActivity.getmPhysicsWorld(), anchorFace, BodyDef.BodyType.StaticBody, objectFixtureDef);
+        final AnimatedSprite anchorBox = new AnimatedSprite(anchorX, anchorY, this.boxTextureRegion);
+        final Body anchorBody = PhysicsFactory.createBoxBody(marbleMazeActivity.getmPhysicsWorld(), anchorBox, BodyDef.BodyType.StaticBody, objectFixtureDef);
 
-        final AnimatedSprite movingFace = new AnimatedSprite(anchorX, anchorY + 90, this.swingingBallTextureRegion);
-        final Body movingBody = PhysicsFactory.createCircleBody(marbleMazeActivity.getmPhysicsWorld(), movingFace, BodyDef.BodyType.DynamicBody, objectFixtureDef);
+        final AnimatedSprite movingBall = new AnimatedSprite(anchorX, anchorY + 90, this.swingingBallTextureRegion);
+        final Body movingBody = PhysicsFactory.createCircleBody(marbleMazeActivity.getmPhysicsWorld(), movingBall, BodyDef.BodyType.DynamicBody, objectFixtureDef);
 
-        pScene.getLastChild().attachChild(anchorFace);
-        pScene.getLastChild().attachChild(movingFace);
+        pScene.getLastChild().attachChild(anchorBox);
+        pScene.getLastChild().attachChild(movingBall);
 
         final Line connectionLine = new Line(anchorX + spriteWidth / 2, anchorY + spriteHeight / 2, anchorX + spriteWidth / 2, anchorY + spriteHeight / 2);
         pScene.getFirstChild().attachChild(connectionLine);
-        marbleMazeActivity.getmPhysicsWorld().registerPhysicsConnector(new PhysicsConnector(anchorFace, anchorBody, true, true) {
+        marbleMazeActivity.getmPhysicsWorld().registerPhysicsConnector(new PhysicsConnector(anchorBox, anchorBody, true, true) {
             @Override
             public void onUpdate(final float pSecondsElapsed) {
                 super.onUpdate(pSecondsElapsed);
                 final Vector2 movingBodyWorldCenter = movingBody.getWorldCenter();
-                connectionLine.setPosition(connectionLine.getX1(), connectionLine.getY1(), movingBodyWorldCenter.x * PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT, movingBodyWorldCenter.y * PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT);
+                connectionLine.setPosition(connectionLine.getX1(), connectionLine.getY1(),
+                    movingBodyWorldCenter.x * PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT,
+                    movingBodyWorldCenter.y * PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT);
             }
         });
-        marbleMazeActivity.getmPhysicsWorld().registerPhysicsConnector(new PhysicsConnector(movingFace, movingBody, true, true));
+        marbleMazeActivity.getmPhysicsWorld().registerPhysicsConnector(new PhysicsConnector(movingBall, movingBody, true, true));
 
 
         final RevoluteJointDef revoluteJointDef = new RevoluteJointDef();

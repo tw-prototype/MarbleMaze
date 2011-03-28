@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.thoughtworks.mm.entity.Ball;
-import com.thoughtworks.mm.entity.SwingingBall;
 import com.thoughtworks.mm.level.Level;
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.Camera;
@@ -47,7 +46,7 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 
     /* And what should collide with what. */
     public static final short MASKBITS_WALL = CATEGORYBIT_WALL
-        + Ball.CATEGORYBIT_BALL;
+        + Ball.CATEGORY_BIT_BALL;
 
     private TextureRegion mParallaxLayerBack;
 
@@ -100,7 +99,7 @@ public class MarbleMazeActivity extends BaseGameActivity implements
     }
 
 
-    public Texture getmTexture() {
+    public Texture getTexture() {
         return mTexture;
     }
 
@@ -132,8 +131,7 @@ public class MarbleMazeActivity extends BaseGameActivity implements
         if(scene==null) scene = new Scene(2);
         // scene.setBackground(new ColorBackground(0, 0, 0));
 
-        final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(
-            0, 0, 0, 5);
+        final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground( 0, 0, 0, 5);
         autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(0.0f,
             new Sprite(0, CAMERA_HEIGHT
                 - this.mParallaxLayerBack.getHeight(),
@@ -141,25 +139,16 @@ public class MarbleMazeActivity extends BaseGameActivity implements
         scene.setBackground(autoParallaxBackground);
         // scene.setOnSceneTouchListener(this);
 
-        this.mPhysicsWorld = new PhysicsWorld(new Vector2(0,
-            SensorManager.GRAVITY_DEATH_STAR_I), false);
+        this.mPhysicsWorld = new PhysicsWorld(new Vector2(0, SensorManager.GRAVITY_DEATH_STAR_I), false);
 
-        final Shape ground = new Rectangle(0, CAMERA_HEIGHT - 2, CAMERA_WIDTH,
-            2);
+        final Shape ground = new Rectangle(0, CAMERA_HEIGHT - 2, CAMERA_WIDTH, 2);
         final Shape roof = new Rectangle(0, 0, CAMERA_WIDTH, 2);
         final Shape left = new Rectangle(0, 0, 2, CAMERA_HEIGHT);
         final Shape right = new Rectangle(CAMERA_WIDTH - 2, 0, 2, CAMERA_HEIGHT);
-        PhysicsFactory.createBoxBody(this.mPhysicsWorld, ground,
-            BodyType.StaticBody, WALL_FIXTURE_DEF);
-        PhysicsFactory.createBoxBody(this.mPhysicsWorld, roof,
-            BodyType.StaticBody, WALL_FIXTURE_DEF);
-        PhysicsFactory.createBoxBody(this.mPhysicsWorld, left,
-            BodyType.StaticBody, WALL_FIXTURE_DEF);
-        PhysicsFactory.createBoxBody(this.mPhysicsWorld, right,
-            BodyType.StaticBody, WALL_FIXTURE_DEF);
-
-
-
+        PhysicsFactory.createBoxBody(this.mPhysicsWorld, ground, BodyType.StaticBody, WALL_FIXTURE_DEF);
+        PhysicsFactory.createBoxBody(this.mPhysicsWorld, roof, BodyType.StaticBody, WALL_FIXTURE_DEF);
+        PhysicsFactory.createBoxBody(this.mPhysicsWorld, left, BodyType.StaticBody, WALL_FIXTURE_DEF);
+        PhysicsFactory.createBoxBody(this.mPhysicsWorld, right, BodyType.StaticBody, WALL_FIXTURE_DEF);
 
         scene.getFirstChild().attachChild(roof);
         scene.getFirstChild().attachChild(left);
@@ -167,7 +156,7 @@ public class MarbleMazeActivity extends BaseGameActivity implements
         scene.registerUpdateHandler(this.mPhysicsWorld);
 
         new Level(this).createMaze(scene);
-        new SwingingBall(503, 114, this).initJoints(scene);
+//        new SwingingBall(503, 114, this).initJoints(scene);
 
         return scene;
     }

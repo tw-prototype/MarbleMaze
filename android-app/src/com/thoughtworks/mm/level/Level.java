@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thoughtworks.mm.entity.SwingingBall;
 import org.anddev.andengine.engine.handler.timer.ITimerCallback;
 import org.anddev.andengine.engine.handler.timer.TimerHandler;
 import org.anddev.andengine.entity.scene.Scene;
@@ -32,148 +33,146 @@ import com.thoughtworks.mm.entity.Trap;
 
 public class Level {
 
-	static final String TAG_ENTITY = "entity";
-	static final String TAG_ENTITY_ATTRIBUTE_X = "x";
-	static final String TAG_ENTITY_ATTRIBUTE_Y = "y";
-	static final String TAG_ENTITY_ATTRIBUTE_WIDTH = "width";
-	static final String TAG_ENTITY_ATTRIBUTE_HEIGHT = "height";
-	private static final String TAG_ENTITY_ATTRIBUTE_TYPE = "type";
+    static final String TAG_ENTITY = "entity";
+    static final String TAG_ENTITY_ATTRIBUTE_X = "x";
+    static final String TAG_ENTITY_ATTRIBUTE_Y = "y";
+    static final String TAG_ENTITY_ATTRIBUTE_WIDTH = "width";
+    static final String TAG_ENTITY_ATTRIBUTE_HEIGHT = "height";
+    private static final String TAG_ENTITY_ATTRIBUTE_TYPE = "type";
 
-	private TiledTextureRegion mBoxFaceTextureRegion;
-	final MarbleMazeActivity maze;
+    private TiledTextureRegion mBoxFaceTextureRegion;
+    final MarbleMazeActivity marbleMazeActivity;
 
     Pocket pocket;
-	Ball ball;
-	List<Trap> traps;
+    Ball ball;
+    List<Trap> traps;
 
-	public Level(MarbleMazeActivity maze) {
-		this.maze = maze;
-		
-		this.mBoxFaceTextureRegion = TextureRegionFactory.createTiledFromAsset(
-				maze.getmTexture(), maze, "box.png", 0, 0, 2, 1); // 64x32
-		traps= new ArrayList<Trap>();
-	}
+    public Level(MarbleMazeActivity maze) {
+        this.marbleMazeActivity = maze;
 
-	public void createMaze(final Scene scene) {
-		final LevelLoader levelLoader = new LevelLoader();
-		levelLoader.setAssetBasePath("level/");
+        this.mBoxFaceTextureRegion = TextureRegionFactory.createTiledFromAsset(
+            maze.getTexture(), maze, "box.png", 0, 0, 2, 1); // 64x32
+        traps = new ArrayList<Trap>();
+    }
 
-		levelLoader.registerEntityLoader(LevelConstants.TAG_LEVEL,
-				new IEntityLoader() {
-					public void onLoadEntity(final String pEntityName,
-							final Attributes pAttributes) {
-						final int width = SAXUtils.getIntAttributeOrThrow(
-								pAttributes,
-								LevelConstants.TAG_LEVEL_ATTRIBUTE_WIDTH);
-						final int height = SAXUtils.getIntAttributeOrThrow(
-								pAttributes,
-								LevelConstants.TAG_LEVEL_ATTRIBUTE_HEIGHT);
-						Toast.makeText(
-								maze,
-								"Loaded level with width=" + width
-										+ " and height=" + height + ".",
-								Toast.LENGTH_LONG).show();
-					}
-				});
+    public void createMaze(final Scene scene) {
+        final LevelLoader levelLoader = new LevelLoader();
+        levelLoader.setAssetBasePath("level/");
 
-		levelLoader.registerEntityLoader(TAG_ENTITY, new IEntityLoader() {
-			public void onLoadEntity(final String pEntityName,
-					final Attributes pAttributes) {
-				final int x = SAXUtils.getIntAttributeOrThrow(pAttributes,
-						TAG_ENTITY_ATTRIBUTE_X);
-				final int y = SAXUtils.getIntAttributeOrThrow(pAttributes,
-						TAG_ENTITY_ATTRIBUTE_Y);
-				final int width = SAXUtils.getIntAttributeOrThrow(pAttributes,
-						TAG_ENTITY_ATTRIBUTE_WIDTH);
-				final int height = SAXUtils.getIntAttributeOrThrow(pAttributes,
-						TAG_ENTITY_ATTRIBUTE_HEIGHT);
-				final String type = SAXUtils.getAttributeOrThrow(pAttributes,
-						TAG_ENTITY_ATTRIBUTE_TYPE);
-				addObject(scene, x, y, width, height, type);
-			}
-		});
+        levelLoader.registerEntityLoader(LevelConstants.TAG_LEVEL,
+            new IEntityLoader() {
+                public void onLoadEntity(final String pEntityName,
+                                         final Attributes pAttributes) {
+                    final int width = SAXUtils.getIntAttributeOrThrow(
+                        pAttributes,
+                        LevelConstants.TAG_LEVEL_ATTRIBUTE_WIDTH);
+                    final int height = SAXUtils.getIntAttributeOrThrow(
+                        pAttributes,
+                        LevelConstants.TAG_LEVEL_ATTRIBUTE_HEIGHT);
+                    Toast.makeText(
+                        marbleMazeActivity,
+                        "Loaded level with width=" + width
+                            + " and height=" + height + ".",
+                        Toast.LENGTH_LONG).show();
+                }
+            });
 
-		try {
-			levelLoader.loadLevelFromAsset(maze, "example.lvl");
-		} catch (final IOException e) {
-			Debug.e(e);
-		}
-		
+        levelLoader.registerEntityLoader(TAG_ENTITY, new IEntityLoader() {
+            public void onLoadEntity(final String pEntityName,
+                                     final Attributes pAttributes) {
+                final int x = SAXUtils.getIntAttributeOrThrow(pAttributes,
+                    TAG_ENTITY_ATTRIBUTE_X);
+                final int y = SAXUtils.getIntAttributeOrThrow(pAttributes,
+                    TAG_ENTITY_ATTRIBUTE_Y);
+                final int width = SAXUtils.getIntAttributeOrThrow(pAttributes,
+                    TAG_ENTITY_ATTRIBUTE_WIDTH);
+                final int height = SAXUtils.getIntAttributeOrThrow(pAttributes,
+                    TAG_ENTITY_ATTRIBUTE_HEIGHT);
+                final String type = SAXUtils.getAttributeOrThrow(pAttributes,
+                    TAG_ENTITY_ATTRIBUTE_TYPE);
+                addObject(scene, x, y, width, height, type);
+            }
+        });
 
-		scene.registerUpdateHandler(new TimerHandler(0.5f, true,
-				new ITimerCallback() {
-					public void onTimePassed(final TimerHandler pTimerHandler) {
-						if(isBallTrapped(ball))
-						{
-							handler.sendEmptyMessage(1);
-						}
-						if (pocket.contains(ball.getX(), ball.getY())) {
-							handler.sendEmptyMessage(0);
-						}
-					}
+        try {
+            levelLoader.loadLevelFromAsset(marbleMazeActivity, "1.lvl");
+        } catch (final IOException e) {
+            Debug.e(e);
+        }
 
-					
-				}));
-	}
-	private boolean isBallTrapped(Ball ball) {
-		for (Trap trap : traps) {
-			if(trap.contains(ball.getX(), ball.getY())){
-				return true;
-			}
-		}
-		return false;
-	}
 
-	private Handler handler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			if(msg.what==0){
-				Toast.makeText(maze, "You win!",
-						Toast.LENGTH_SHORT).show();
-			}else{
-				
-				Toast.makeText(maze, "You loose!",
-					Toast.LENGTH_SHORT).show();
-				maze.resetGame();
-				
-			}
-			
-		}
-	};
+        scene.registerUpdateHandler(new TimerHandler(0.5f, true,
+            new ITimerCallback() {
+                public void onTimePassed(final TimerHandler pTimerHandler) {
+                    if (isBallTrapped(ball)) {
+                        handler.sendEmptyMessage(1);
+                    }
+                    if (pocket.contains(ball.getX(), ball.getY())) {
+                        handler.sendEmptyMessage(0);
+                    }
+                }
 
-	void addObject(final Scene pScene, final float pX, final float pY,
-			final int pWidth, final int pHeight, String type) {
-		final AnimatedSprite face;
 
-		if (type.equals("box")) {
-			face = new AnimatedSprite(pX, pY, pWidth, pHeight,
-					this.mBoxFaceTextureRegion);
-			final Body body;
+            }));
+    }
 
-			body = PhysicsFactory.createBoxBody(maze.getmPhysicsWorld(), face,
-					BodyType.StaticBody, MarbleMazeActivity.WALL_FIXTURE_DEF);
+    private boolean isBallTrapped(Ball ball) {
+        for (Trap trap : traps) {
+            if (trap.contains(ball.getX(), ball.getY())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-			maze.getmPhysicsWorld().registerPhysicsConnector(
-					new PhysicsConnector(face, body, true, true));
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == 0) {
+                Toast.makeText(marbleMazeActivity, "You win!",
+                    Toast.LENGTH_SHORT).show();
+            } else {
 
-		} else if (type.equals("pocket")){
-			pocket = new Pocket(pX, pY,
-					maze);
-			face = pocket;
-		}else if (type.equals("trap")) {
-            Trap trap= new Trap(pX, pY, maze);
-			face =trap;
+                Toast.makeText(marbleMazeActivity, "You loose!",
+                    Toast.LENGTH_SHORT).show();
+                marbleMazeActivity.resetGame();
+
+            }
+
+        }
+    };
+
+    void addObject(final Scene pScene, final float pX, final float pY, final int pWidth, final int pHeight, String type) {
+        AnimatedSprite animatedSprite = null;
+
+        if (type.equals("box")) {
+            animatedSprite = new AnimatedSprite(pX, pY, pWidth, pHeight, this.mBoxFaceTextureRegion);
+            final Body body= PhysicsFactory.createBoxBody(marbleMazeActivity.getmPhysicsWorld(), animatedSprite,
+                BodyType.StaticBody, MarbleMazeActivity.WALL_FIXTURE_DEF);
+            marbleMazeActivity.getmPhysicsWorld().registerPhysicsConnector( new PhysicsConnector(animatedSprite, body, true, true));
+
+        } else if (type.equals("pocket")) {
+            pocket = new Pocket(pX, pY, marbleMazeActivity);
+            animatedSprite = pocket;
+
+        } else if (type.equals("trap")) {
+            Trap trap = new Trap(pX, pY, marbleMazeActivity);
             traps.add(trap);
-		} else {
-			
-			ball = new Ball(pX, pY,
-					maze);
-			face =  ball;
-		
-		}
-		
-		pScene.getLastChild().attachChild(face);
-	}
+            animatedSprite = trap;
 
-	
+        } else if (type.equals("swing")) {
+            SwingingBall swingingBall = new SwingingBall(pX, pY, marbleMazeActivity);
+            swingingBall.initJoints(pScene);
+
+        } else if (type.equals("ball")) {
+            ball = new Ball(pX, pY, marbleMazeActivity);
+            animatedSprite = ball;
+        }
+
+        if (animatedSprite != null) {
+            pScene.getLastChild().attachChild(animatedSprite);
+        }
+    }
+
+
 }
