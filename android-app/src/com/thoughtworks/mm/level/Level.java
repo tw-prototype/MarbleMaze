@@ -1,16 +1,8 @@
 package com.thoughtworks.mm.level;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.thoughtworks.mm.entity.SwingingBall;
-import org.anddev.andengine.engine.handler.timer.ITimerCallback;
-import org.anddev.andengine.engine.handler.timer.TimerHandler;
 import org.anddev.andengine.entity.scene.Scene;
-import org.anddev.andengine.entity.sprite.AnimatedSprite;
-import org.anddev.andengine.extension.physics.box2d.PhysicsConnector;
-import org.anddev.andengine.extension.physics.box2d.PhysicsFactory;
 import org.anddev.andengine.level.LevelLoader;
 import org.anddev.andengine.level.LevelLoader.IEntityLoader;
 import org.anddev.andengine.level.util.constants.LevelConstants;
@@ -20,16 +12,10 @@ import org.anddev.andengine.util.Debug;
 import org.anddev.andengine.util.SAXUtils;
 import org.xml.sax.Attributes;
 
-import android.os.Handler;
-import android.os.Message;
 import android.widget.Toast;
 
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.thoughtworks.mm.MarbleMazeActivity;
-import com.thoughtworks.mm.entity.Ball;
-import com.thoughtworks.mm.entity.Pocket;
-import com.thoughtworks.mm.entity.Trap;
+import com.thoughtworks.mm.entity.EntityBuilder;
 
 public class Level {
 
@@ -40,15 +26,14 @@ public class Level {
 	static final String TAG_ENTITY_ATTRIBUTE_HEIGHT = "height";
 	private static final String TAG_ENTITY_ATTRIBUTE_TYPE = "type";
 
-	private TiledTextureRegion mBoxFaceTextureRegion;
+
 	final MarbleMazeActivity marbleMazeActivity;
 	private final GameDecisionEngine gameDecisionEngine = new GameDecisionEngine();
 
 	public Level(MarbleMazeActivity maze) {
 		this.marbleMazeActivity = maze;
 
-		this.mBoxFaceTextureRegion = TextureRegionFactory.createTiledFromAsset(
-				maze.getTexture(), maze, "box.png", 0, 0, 2, 1); // 64x32
+
 	}
 
 	public void createMaze(final Scene scene) {
@@ -100,43 +85,13 @@ public class Level {
 
 	}
 
-	void addObject(final Scene pScene, final float pX, final float pY,
-			final int pWidth, final int pHeight, String type) {
-		AnimatedSprite animatedSprite = null;
-
-		if (type.equals("box")) {
-			animatedSprite = new AnimatedSprite(pX, pY, pWidth, pHeight,
-					this.mBoxFaceTextureRegion);
-			final Body body = PhysicsFactory.createBoxBody(marbleMazeActivity
-					.getmPhysicsWorld(), animatedSprite, BodyType.StaticBody,
-					MarbleMazeActivity.WALL_FIXTURE_DEF);
-			marbleMazeActivity.getmPhysicsWorld().registerPhysicsConnector(
-					new PhysicsConnector(animatedSprite, body, true, true));
-
-		} else if (type.equals("pocket")) {
-			Pocket pocket = new Pocket(pX, pY, marbleMazeActivity);
-			animatedSprite = pocket;
-			gameDecisionEngine.setPocket(pocket);
-
-		} else if (type.equals("trap")) {
-			Trap trap = new Trap(pX, pY, marbleMazeActivity);
-			animatedSprite = trap;
-			gameDecisionEngine.addTrap(trap);
-
-		} else if (type.equals("swing")) {
-			SwingingBall swingingBall = new SwingingBall(pX, pY,
-					marbleMazeActivity);
-			swingingBall.initJoints(pScene);
-
-		} else if (type.equals("ball")) {
-			Ball ball = new Ball(pX, pY, marbleMazeActivity);
-			gameDecisionEngine.setBall(ball);
-			animatedSprite = ball;
-		}
-
-		if (animatedSprite != null) {
-			pScene.getLastChild().attachChild(animatedSprite);
-		}
+	void addObject(final Scene pScene, final float x, final float y,
+			final int width, final int height, String type) {
+		EntityBuilder builder = new EntityBuilder(marbleMazeActivity,gameDecisionEngine);		
+		builder.setInitialCoordinates(x, y);
+		builder.setDimensions(width, height);
+		builder.type(type);
+		builder.build();		
 	}
 
 }
