@@ -29,8 +29,6 @@ public class Level {
 
 	public Level(MarbleMazeActivity maze) {
 		this.marbleMazeActivity = maze;
-
-
 	}
 
 	public void loadLevel(int level) {
