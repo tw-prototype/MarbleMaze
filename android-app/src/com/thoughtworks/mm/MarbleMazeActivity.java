@@ -1,13 +1,5 @@
 package com.thoughtworks.mm;
 
-import android.hardware.SensorManager;
-import android.view.Menu;
-import android.view.MenuItem;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.thoughtworks.mm.entity.Ball;
-import com.thoughtworks.mm.level.Level;
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.Camera;
 import org.anddev.andengine.engine.handler.IUpdateHandler;
@@ -31,6 +23,16 @@ import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
 import org.anddev.andengine.sensor.accelerometer.AccelerometerData;
 import org.anddev.andengine.sensor.accelerometer.IAccelerometerListener;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
+
+import android.hardware.SensorManager;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.thoughtworks.mm.entity.Ball;
+import com.thoughtworks.mm.level.Level;
 
 public class MarbleMazeActivity extends BaseGameActivity implements
     IAccelerometerListener {
@@ -93,6 +95,8 @@ public class MarbleMazeActivity extends BaseGameActivity implements
 	private IUpdateHandler pUpdateHandler;
 
 	private Scene scene;
+
+	private Level level;
 
     public Scene getScene() {
 		return scene;
@@ -159,7 +163,8 @@ public class MarbleMazeActivity extends BaseGameActivity implements
         scene.getFirstChild().attachChild(right);
         scene.registerUpdateHandler(this.mPhysicsWorld);
 
-        new Level(this).loadLevel(1);
+        level= new Level(this);
+        level.loadLevel(1);
 //        new SwingingBall(503, 114, this).initJoints(scene);
 
         return scene;
@@ -168,25 +173,7 @@ public class MarbleMazeActivity extends BaseGameActivity implements
     public void onLoadComplete() {
 
     }
-    public void resetGame(){
-    	
-    	mEngine.runOnUpdateThread(new Runnable() {
-    	                        public void run() {
-    	                        	scene.getFirstChild().detachChildren();
-    	                    		scene.getLastChild().detachChildren();
-    	                            scene.reset();
-    	                        }
-    	                });
-   	
-   		scene.clearUpdateHandlers();
-    	this.mEngine.clearUpdateHandlers();
-    	this.mPhysicsWorld.clearPhysicsConnectors();
-    	mPhysicsWorld.reset();
-    	mPhysicsWorld.dispose();
-    	scene=null;	
-    	onLoadScene();
-        this.mEngine.setScene(scene);
-    }
+    
     
     public void onAccelerometerChanged(
         final AccelerometerData pAccelerometerData) {
@@ -195,5 +182,9 @@ public class MarbleMazeActivity extends BaseGameActivity implements
         this.mPhysicsWorld.setGravity(gravity);
         Vector2Pool.recycle(gravity);
     }
+
+	public void resetLevel(Ball ball) {
+		level.reset(ball);
+	}
 
 }
