@@ -1,0 +1,20 @@
+MarbleMaze
+--------------
+
+TODOs:
+
+1. A home screen where game's menu need to be displayed. Option available on menu would be 
+ a) Start new game (or resume if there is already a game in progress)
+ b) About
+ c) Top Scores
+ d) Exit 
+
+2. Pause capability, where a user can pause a game in current level. Ball position should also be captured as part of paused game. From the main menu he should be able to resume the game from same position.
+
+3. Level transition, On completion of a level, next level should automatically come up. As of now there is just one level xml. We need to create few more level xmls and build a logic which takes the user across the levels. An activity page to list all the available levels (and select any one to play) is also required. This page will come up when user selects "Start new game" option from the main menu.   
+
+4. Scoring functionality, there should be some scoring mechanism, based on how quickly you win a particular level. We will also need a "Top Scores" page which would list the top scores across the levels.
+
+5. Swift ball movement, right now the ball reacts little slow to accelorometer/orientation events. We might have to discard the gravity properties and build custom ball movement logic on top of accelorometer events.
+
+
