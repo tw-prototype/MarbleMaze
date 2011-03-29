@@ -15,6 +15,6 @@ TODOs:
 
 4. Scoring functionality, there should be some scoring mechanism, based on how quickly you win a particular level. We will also need a "Top Scores" page which would list the top scores across the levels.
 
-5. Swift ball movement, right now the ball reacts little slow to accelorometer/orientation events. We might have to discard the gravity properties and build custom ball movement logic on top of accelorometer events.
+5. Swift ball movement, right now the ball reacts little slow to accelerometer/orientation events. We might have to discard the gravity properties and build custom ball movement logic on top of accelerometer events.
 
 
