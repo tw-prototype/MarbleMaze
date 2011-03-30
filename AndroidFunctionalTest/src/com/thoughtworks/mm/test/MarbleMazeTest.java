@@ -6,37 +6,34 @@ import android.test.ActivityInstrumentationTestCase2;
 import com.thoughtworks.mm.MarbleMazeActivity;
 
 public class MarbleMazeTest extends
-		ActivityInstrumentationTestCase2<MarbleMazeActivity> {
+		ActivityInstrumentationTestCase2 {
 
 	private Solo solo;
-
-	public MarbleMazeTest(Class<MarbleMazeActivity> activityClass) {
-		super("com.thoughtworks.mm", activityClass);
-	}
 
     public MarbleMazeTest() {
         super("com.thoughtworks.mm", MarbleMazeActivity.class);
     }
 
 	@Override
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		super.setUp();
 		solo = new Solo(getInstrumentation(), getActivity());
 	}
 
 
-    public void testSample() {
-        assertTrue(true);
+    public void testSample() throws Exception {
+    	solo.sendKey(Solo.MENU);
+        assertTrue(solo.searchText("Start Method Tracing"));
     }
 
 	@Override
-	protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
 		try {
 			solo.finalize();
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
-		getActivity().finish();
+		//getActivity().finish();
 		super.tearDown();
 	}
 
